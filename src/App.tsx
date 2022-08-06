@@ -1,37 +1,38 @@
-import { useState } from "react"
-import { BannerSlider, Navbar } from "./components/layout"
-import { Routes, Route } from "react-router-dom"
-import { Home } from "./pages"
+import { useState } from "react";
+import { BannerSlider, Navbar } from "./components/layout";
+import { Routes, Route } from "react-router-dom";
+import { Home } from "./pages";
 
 // solana
 import {
   createDefaultAuthorizationResultCache,
   SolanaMobileWalletAdapter,
-} from "@solana-mobile/wallet-adapter-mobile"
-import { WalletAdapterNetwork } from "@solana/wallet-adapter-base"
+} from "@solana-mobile/wallet-adapter-mobile";
+import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import {
   ConnectionProvider,
   WalletProvider,
-} from "@solana/wallet-adapter-react"
-import { WalletModalProvider } from "@solana/wallet-adapter-react-ui"
+} from "@solana/wallet-adapter-react";
+import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import {
   GlowWalletAdapter,
   PhantomWalletAdapter,
   SlopeWalletAdapter,
   SolflareWalletAdapter,
   TorusWalletAdapter,
-} from "@solana/wallet-adapter-wallets"
-import { clusterApiUrl } from "@solana/web3.js"
-import { useMemo } from "react"
+} from "@solana/wallet-adapter-wallets";
+import { clusterApiUrl } from "@solana/web3.js";
+import { useMemo } from "react";
 
-import "@solana/wallet-adapter-react-ui/styles.css"
+import "@solana/wallet-adapter-react-ui/styles.css";
 // redux
-import { Provider } from "react-redux"
-import store from "./redux/store"
+import { Provider } from "react-redux";
+import store from "./redux/store";
+import MinesweeperGame from "./pages/game";
 function App() {
-  const network = WalletAdapterNetwork.Devnet
+  const network = WalletAdapterNetwork.Devnet;
 
-  const endpoint = useMemo(() => clusterApiUrl(network), [network])
+  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
 
   const wallets = useMemo(
     () => [
@@ -47,7 +48,7 @@ function App() {
       new TorusWalletAdapter(),
     ],
     [network]
-  )
+  );
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
@@ -58,7 +59,8 @@ function App() {
               <div className="mt-6">
                 <BannerSlider />
                 <Routes>
-                  <Route path="/" element={<Home />} />{" "}
+                  <Route path="/" element={<Home />} />
+                  <Route path="/game" element={<MinesweeperGame />} />
                 </Routes>
               </div>
             </div>
@@ -66,7 +68,7 @@ function App() {
         </WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>
-  )
+  );
 }
 
-export default App
+export default App;
