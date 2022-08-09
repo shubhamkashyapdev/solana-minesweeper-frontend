@@ -28,7 +28,8 @@ import "@solana/wallet-adapter-react-ui/styles.css";
 // redux
 import { Provider } from "react-redux";
 import store from "./redux/store";
-import MinesweeperGame from "./pages/game";
+import MinesweeperGame from "./pages/MinesweeperGame"
+import Footer from "./components/layout/Footer";
 function App() {
   const network = WalletAdapterNetwork.Devnet;
 
@@ -60,9 +61,10 @@ function App() {
                 <BannerSlider />
                 <Routes>
                   <Route path="/" element={<Home />} />
-                  <Route path="/game" element={<MinesweeperGame />} />
+                  <Route path="/minesweeper" element={<MinesweeperGame />} />
                 </Routes>
               </div>
+              <Footer />
             </div>
           </Provider>
         </WalletModalProvider>

@@ -20,7 +20,6 @@ const Home = () => {
       <h1 className="page__title">Currently Trending Games</h1>
       <GameCards />
       <HomeInfoBox />
-      <Footer />
     </div>
   );
 };
