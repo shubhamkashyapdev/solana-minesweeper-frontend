@@ -11,6 +11,11 @@ import gameRoutes from "./routes/game.route";
 import searchOpponent from "./routes/searchOpponent.route";
 import { availableUserModel } from "./models/AvailableForMatching.modal";
 import { userModal } from "./models/user.models";
+import {
+  addtoOnlineList,
+  removeUser,
+} from "./controllers/online.users.controller";
+import onlineUsersRoute from "./routes/OnlineUsers.route";
 
 const app = express();
 const PORT = config.get("PORT");
@@ -23,6 +28,8 @@ app.use(bodyParser.json());
 app.use("/", userRotes);
 app.use("/", gameRoutes);
 app.use("/", searchOpponent);
+app.use("/", onlineUsersRoute);
+
 connectToDB();
 
 const server = app.listen(PORT, () => {
@@ -33,10 +40,13 @@ const socketIo = init(server);
 
 socketIo.use(async (socket, next) => {
   const walletId = socket.handshake.auth.walletId;
-  await userModal.findOneAndUpdate(
-    { wallet: walletId },
-    { socketId: socket.id }
-  );
+  const checkUser = await userModal.findOne({ wallet: walletId });
+  if (checkUser) {
+    // console.log(checkUser);
+    checkUser.socketId = socket.id;
+    checkUser.save();
+    await addtoOnlineList(checkUser);
+  }
   next();
 });
 
@@ -55,6 +65,7 @@ socketIo.on("connection", async (socket) => {
 
   socket.on("disconnect", () => {
     console.log("ueser Disconnected with id ", socket.id);
+    removeUser(socket.id);
   });
 
   socket.on("availableForMactch", async (id, amount) => {
