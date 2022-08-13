@@ -1,4 +1,4 @@
-import React from "react"
+import React from "react";
 
 const GameCards = () => {
   return (
@@ -16,7 +16,7 @@ const GameCards = () => {
         src="/assets/images/cards/under-construction.png"
       />
     </div>
-  )
-}
+  );
+};
 
-export default GameCards
+export default GameCards;

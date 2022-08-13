@@ -1,45 +1,48 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;900&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 * {
-    font-family: "Poppins", sans-serif;
-    color: white;
+  font-family: "Poppins", sans-serif;
+  color: white;
 }
+
 .icon {
-    color: black;
+  color: black;
 }
 
 @layer components {
-    .container {
-        @apply w-[90%] max-w-[1440px] mx-auto;
-    }
-    .page__title {
-        @apply text-3xl leading-tight lg:text-[45px] font-bold text-center my-16;
-    }
-    .app {
-        @apply bg-darkBG min-h-screen
-    }
-    .wallet__button:hover {
-        @apply bg-primary !important;
-    }
+  .container {
+    @apply w-[90%] max-w-[1440px] mx-auto;
+  }
 
-    .link__active {
-        @apply py-[4px] rounded-tl-full text-xl rounded-bl-full cursor-pointer w-full text-primary hover:shadow-md  hover:text-black;
-    }
+  .page__title {
+    @apply text-3xl leading-tight lg:text-[45px] font-bold text-center my-16;
+  }
 
-    .link_main {
-        @apply py-[4px] rounded-tl-full text-2xl rounded-bl-full cursor-pointer w-full text-primary hover:shadow-md mb-4 hover:text-primary;
-    }
+  .app {
+    @apply bg-darkBG min-h-screen;
+  }
 
-    .link {
-        @apply py-[4px] rounded-tl-full text-xl rounded-bl-full cursor-pointer w-full text-white hover:shadow-md  hover:text-primary;
-    }
+  .wallet__button:hover {
+    @apply bg-primary !important;
+  }
 
-    .gradient_main {
-        background: linear-gradient(180deg, #000000 0%, #241400 111.94%);
-    }
+  .link__active {
+    @apply py-[4px] rounded-tl-full text-xl rounded-bl-full cursor-pointer w-full text-primary hover: shadow-md hover:text-black;
+  }
+
+  .link_main {
+    @apply py-[4px] rounded-tl-full text-2xl rounded-bl-full cursor-pointer w-full text-primary hover:shadow-md mb-4 hover:text-primary;
+  }
+
+  .link {
+    @apply py-[4px] rounded-tl-full text-xl rounded-bl-full cursor-pointer w-full text-white hover:shadow-md hover:text-primary;
+  }
+
+  .gradient_main {
+    background: linear-gradient(180deg, #000000 0%, #241400 111.94%);
+  }
 }
-

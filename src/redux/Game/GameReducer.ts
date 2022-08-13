@@ -1,12 +1,13 @@
-import { SET_OPPONENT } from "./GameTypes"
+import { SET_OPPONENT, UPDATE_SCORE } from "./GameTypes"
 
 interface Action {
   type: String
-  payload: Object
+  payload: any
 }
 
 const initialState = {
   opponent: null,
+  score: 0,
 }
 
 export const gameReducer = (state = initialState, action: Action) => {
@@ -16,6 +17,11 @@ export const gameReducer = (state = initialState, action: Action) => {
       return {
         ...state,
         opponent: payload,
+      }
+    case UPDATE_SCORE:
+      return {
+        ...state,
+        score: payload,
       }
     default:
       return state

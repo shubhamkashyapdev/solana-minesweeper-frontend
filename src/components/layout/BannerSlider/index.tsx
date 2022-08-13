@@ -1,11 +1,11 @@
-import React from "react"
-import { Navigation, Pagination, Autoplay } from "swiper"
-import { Swiper, SwiperSlide } from "swiper/react"
+import React from "react";
+import { Navigation, Pagination, Autoplay } from "swiper";
+import { Swiper, SwiperSlide } from "swiper/react";
 
 // Import Swiper styles
-import "swiper/css"
-import "swiper/css/navigation"
-import "swiper/css/pagination"
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 
 //@ts-ignore
 const BannerSlider = ({ slides }) => {
@@ -14,13 +14,13 @@ const BannerSlider = ({ slides }) => {
       <Swiper
         spaceBetween={50}
         slidesPerView={1}
-        onSlideChange={() => console.log("slide change")}
+        onSlideChange={() => { }}
         modules={[Navigation, Pagination, Autoplay]}
         autoplay={{
           delay: 2000,
         }}
         pagination={{ clickable: true }}
-        onSwiper={(swiper) => console.log(swiper)}
+        onSwiper={(swiper) => { }}
       >
         {slides.map((item: any) => (
           <SwiperSlide>
@@ -34,8 +34,8 @@ const BannerSlider = ({ slides }) => {
         ))}
       </Swiper>
     </div>
-  )
-}
+  );
+};
 
 BannerSlider.defaultProps = {
   slides: [
@@ -49,6 +49,6 @@ BannerSlider.defaultProps = {
       img: "/assets/images/banners/banner1.png",
     },
   ],
-}
+};
 
-export default BannerSlider
+export default BannerSlider;
