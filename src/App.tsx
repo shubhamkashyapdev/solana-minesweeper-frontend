@@ -2,7 +2,6 @@ import { useState } from "react"
 import { BannerSlider, Navbar } from "./components/layout"
 import { Routes, Route } from "react-router-dom"
 import { Home } from "./pages"
-
 // solana
 import {
   createDefaultAuthorizationResultCache,
