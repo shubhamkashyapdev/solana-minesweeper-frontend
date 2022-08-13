@@ -55,6 +55,7 @@ export class Board implements IBoard {
     for (let i = 0; i < 25; i++) {
       if (this.slots[i] == undefined) {
         this.slots.push(
+          //@ts-ignore
           new CardSlot(Cards.CardsList[RandomFromTo(2, 4)], true, new Sprite())
         )
       }
@@ -74,6 +75,7 @@ export class Board implements IBoard {
     for (let i = 0; i < 25; i++) {
       if (this.slots[i] == undefined) {
         this.slots.push(
+          //@ts-ignore
           new CardSlot(Cards.CardsList[RandomFromTo(2, 4)], true, new Sprite())
         )
       }
