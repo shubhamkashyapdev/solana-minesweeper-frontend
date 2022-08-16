@@ -41,20 +41,32 @@ const socketIo = init(server);
 socketIo.use(async (socket, next) => {
   const walletId = socket.handshake.auth.walletId;
   const checkUser = await userModal.findOne({ wallet: walletId });
-  if (checkUser) {
+  console.log({ checkUser, walletId });
+  if (!walletId) {
+    return socket.disconnect();
+  } else if (checkUser) {
     // console.log(checkUser);
     checkUser.socketId = socket.id;
     checkUser.save();
     await addtoOnlineList(checkUser);
+  } else {
+    const newUser = new userModal({
+      name: "",
+      socketId: socket.id,
+      wallet: walletId,
+    });
+    await newUser.save();
+    console.log({ newUser });
   }
+
   next();
 });
 
-socketIo.on("connection", async (socket) => {
+socketIo.on("connection", async (socket: any) => {
   console.log("client Connected with id ", socket.id);
   socket.emit("message", `connected with id ${socket.id}`);
 
-  socket.on("message", (msg) => {
+  socket.on("message", (msg: any) => {
     console.log(msg);
   });
 
@@ -68,10 +80,10 @@ socketIo.on("connection", async (socket) => {
     removeUser(socket.id);
   });
 
-  socket.on("availableForMactch", async (id, amount) => {
-    console.log("Player Available for Match", id);
+  socket.on("availableForMactch", async (walletId: any, amount: any) => {
+    console.log("Player Available for Match", walletId);
 
-    const checkUser = await userModal.findOne({ _id: id });
+    const checkUser = await userModal.findOne({ wallet: walletId });
     if (checkUser) {
       const newEntry = new availableUserModel({
         // adding current user to available list

@@ -1,172 +1,224 @@
-import React, { Component } from 'react';
-import { connect, Subscription } from 'react-redux';
-import { updateScore } from '../../../redux/Game/GameAction';
-import { BetBalance, MainBalance } from '../balance';
-import { Select } from '@mantine/core';
-import { board } from '../board-generator';
-import { session } from '../game';
-import './game-form.scss'
+import { Component, useEffect } from "react";
+import { connect } from "react-redux";
+import { updateScore } from "../../../redux/Game/GameAction";
+import { BetBalance, MainBalance } from "../balance";
+import { Select } from "@mantine/core";
+import { board } from "../board-generator";
+import { session } from "../game";
+import { io } from "socket.io-client";
+import "./game-form.scss";
 
 export interface IState {
-    amount: number;
-    mode: number;
-    score: number;
-    time: number;
+  amount: number;
+  mode: number;
+  score: number;
+  time: number;
 }
 
 export class game_form extends Component<{}, IState> {
-    static interval: any;
+  static interval: any;
+  socketIo: any;
 
-    constructor(props: any) {
-        super(props);
-        this.state = {
-            amount: BetBalance.Set(MainBalance.GetValue()),
-            mode: 1,
-            score: 0,
-            time: 180, // 180 seconds - 3min
-        };
-        this.GetInputAmount = this.GetInputAmount.bind(this);
-        this.onChangeValue = this.onChangeValue.bind(this);
-        this.Submit = this.Submit.bind(this);
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      amount: BetBalance.Set(MainBalance.GetValue()),
+      mode: 1,
+      score: 0,
+      time: 180, // 180 seconds - 3min
+    };
+    this.GetInputAmount = this.GetInputAmount.bind(this);
+    this.onChangeValue = this.onChangeValue.bind(this);
+    this.Submit = this.Submit.bind(this);
+  }
+
+  componentDidMount() {
+    this.startSocket();
+  }
+
+  componentWillUnmount() {
+    console.log("disconnected for server");
+    // this.socketIo.disconnect();
+  }
+
+  GetInputAmount(event: any) {
+    this.setState((pState) => ({
+      amount: BetBalance.Set(MainBalance.CheckIfBalance(event.target.value)),
+      mode: pState.mode,
+    }));
+  }
+
+  startSocket() {
+    this.socketIo = io("http://192.168.18.241:5000", {
+      auth: { walletId: "test1" },
+    });
+
+    this.socketIo.on("message", (msg: any) => {
+      console.log("got Msg ", msg);
+    });
+
+    this.socketIo.on("gotOpponent", (data: any) => {
+      console.log("Got Opponent", data);
+    });
+
+    this.socketIo.on("msgFromOpponent", (data: any) => {
+      console.log(data);
+    });
+    this.socketIo.on("noOpponent", (data: any) => {
+      console.log(data);
+    });
+  }
+
+  Submit() {
+    console.log(this.state.amount);
+    if (this.state.amount == 0) {
+      alert("Please choose a bet amount");
+      return;
     }
 
+    // this.socketIo.emit("availableForMactch", "62f0ff30aad187d058392718", 0.001);
 
-    GetInputAmount(event: any) {
-
-        this.setState((pState) => ({
-            amount: BetBalance.Set(MainBalance.CheckIfBalance(event.target.value)),
-            mode: pState.mode
-        }))
-
+    this.startGameSession();
+    if (!board.isActive) {
+      // @ts-ignore
+      this.props.updateScore(0);
+      session.StartSession(this);
+      return;
     }
+    session.EndSession();
+  }
 
-    Submit() {
-        console.log(this.state.amount)
-        if (this.state.amount > 0) {
-            alert("Please choose a bet amount")
-            return;
-        }
-        this.startGameSession();
-        if (!board.isActive) {
-            // @ts-ignore
-            this.props.updateScore(0)
-            session.StartSession(this);
-            return;
-        }
-        session.EndSession();
+  onChangeValue(event: any) {
+    this.setState((pState) => ({
+      amount: BetBalance.Set(pState.amount),
+      mode: event.target.value,
+    }));
+  }
 
+  UpdateAmount() {
+    this.setState((pState) => ({
+      amount: BetBalance.GetValue(),
+      mode: pState.mode,
+    }));
+  }
+
+  ActivateForm(isActive: boolean): void {
+    if (isActive) {
+      document.getElementById("form_container")?.classList.remove("disabled");
+      return;
     }
+    document.getElementById("form_container")?.classList.add("disabled");
+    return;
+  }
 
+  startGameSession() {
+    game_form.interval = setInterval(() => {
+      if (this.state.time >= 3 * 60 * 1000) {
+        session.KillSession();
+      }
+      this.setState({ time: this.state.time - 1 });
+    }, 1000);
 
+    return () => clearInterval(game_form.interval);
+  }
 
-    onChangeValue(event: any) {
-        this.setState((pState) => ({
-            amount: BetBalance.Set(pState.amount),
-            mode: event.target.value
-        }))
-    }
+  static getInterval() {
+    return this.interval;
+  }
 
-    UpdateAmount() {
-        this.setState((pState) => ({
-            amount: BetBalance.GetValue(),
-            mode: pState.mode
-        }))
-    }
+  getTime(num: number): string {
+    let minutes = Math.floor(num / 60);
+    let seconds = num - minutes * 60;
+    return `0${minutes}:${`${seconds}`.length === 1 ? `0${seconds}` : seconds}`;
+  }
 
-    ActivateForm(isActive: boolean): void {
-        if (isActive) {
-            document.getElementById('form_container')?.classList.remove('disabled');
-            return;
-        }
-        document.getElementById('form_container')?.classList.add('disabled');
-        return;
-    }
+  render() {
+    return (
+      <div className="formBody min-w-[300px]">
+        <div id="form_container" className="form_container">
+          <div className="flex justify-between my-2">
+            {/* @ts-ignore */}
+            <span>Score: {Number(this.props.score)}</span>
+            <span>Remaining: {this.getTime(this.state.time)}</span>
+          </div>
+          {/* @ts-ignore */}
 
-    startGameSession() {
-        game_form.interval = setInterval(() => {
-            if (this.state.time >= 3 * 60 * 1000) {
-                session.KillSession();
-            }
-            this.setState({ time: this.state.time - 1 })
-        }, 1000)
+          <span className="label">Bet Amount</span>
+          <div>
+            {/* <input className="w-full py-2 bg-dark2" id='betAmount' type="number" min='0' max='99999' value={this.state.amount} onChange={this.GetInputAmount} /> */}
+            <Select
+              id={`betAmount`}
+              placeholder="Pick one"
+              value={`${this.state.amount}`}
+              onChange={(val: string) => {
+                this.setState({ amount: Number(val) });
+              }}
+              data={[
+                { value: "0.001", label: "0.001" },
+                { value: "0.002", label: "0.002" },
+                { value: "0.003", label: "0.003" },
+                { value: "0.004", label: "0.004" },
+              ]}
+            />
+          </div>
 
-        return () => clearInterval(game_form.interval);
-    }
-
-    static getInterval() {
-        return this.interval;
-    }
-
-    getTime(num: number): string {
-        let minutes = Math.floor(num / 60);
-        let seconds = num - (minutes * 60);
-        return `0${minutes}:${`${seconds}`.length === 1 ? `0${seconds}` : seconds}`
-    }
-
-
-    render() {
-
-        return (
-            <div className="formBody min-w-[300px]">
-                <div id='form_container' className="form_container">
-                    <div className="flex justify-between my-2">
-                        {/* @ts-ignore */}
-                        <span>Score: {Number(this.props.score)}</span>
-                        <span>Remaining: {this.getTime(this.state.time)}</span></div>
-                    {/* @ts-ignore */}
-
-                    <span className='label' >Bet Amount</span>
-                    <div>
-                        {/* <input className="w-full py-2 bg-dark2" id='betAmount' type="number" min='0' max='99999' value={this.state.amount} onChange={this.GetInputAmount} /> */}
-                        <Select
-                            id={`betAmount`}
-                            placeholder="Pick one"
-                            value={`${this.state.amount}`}
-                            onChange={(val: string) => {
-                                this.setState({ amount: Number(val) })
-                            }}
-                            data={[
-                                { value: '0.001', label: '0.001' },
-                                { value: '0.002', label: '0.002' },
-                                { value: '0.003', label: '0.003' },
-                                { value: '0.004', label: '0.004' },
-                            ]}
-                        />
-                    </div>
-
-                    <span className='label'>Number Of Thieves</span>
-                    <div className="numberOfThieves">
-                        <div className="input_container">
-                            <input onChange={this.onChangeValue} type="radio" id="fiveThieves" name="nThieves" value="1" defaultChecked></input>
-                            <span className="checkmark">5</span>
-                        </div>
-                        <div className="input_container">
-                            <input onChange={this.onChangeValue} type="radio" id="tenThieves" name="nThieves" value="2" ></input>
-                            <span className="checkmark">10</span>
-                        </div>
-                        <div className="input_container">
-                            <input onChange={this.onChangeValue} type="radio" id="fifteenThieves" name="nThieves" value="3" ></input>
-                            <span className="checkmark">15</span>
-                        </div>
-
-                    </div>
-                    <div className="flex">
-                        <a onClick={this.Submit} id='start-cashout' className="bg-primary text-primaryBlack py-2 flex-1 cursor-pointer">Start Game</a>
-                    </div>
-                </div>
+          <span className="label">Number Of Thieves</span>
+          <div className="numberOfThieves">
+            <div className="input_container">
+              <input
+                onChange={this.onChangeValue}
+                type="radio"
+                id="fiveThieves"
+                name="nThieves"
+                value="1"
+                defaultChecked
+              ></input>
+              <span className="checkmark">5</span>
             </div>
-        )
-    }
+            <div className="input_container">
+              <input
+                onChange={this.onChangeValue}
+                type="radio"
+                id="tenThieves"
+                name="nThieves"
+                value="2"
+              ></input>
+              <span className="checkmark">10</span>
+            </div>
+            <div className="input_container">
+              <input
+                onChange={this.onChangeValue}
+                type="radio"
+                id="fifteenThieves"
+                name="nThieves"
+                value="3"
+              ></input>
+              <span className="checkmark">15</span>
+            </div>
+          </div>
+          <div className="flex">
+            <a
+              onClick={this.Submit}
+              id="start-cashout"
+              className="bg-primary text-primaryBlack py-2 flex-1 cursor-pointer"
+            >
+              Start Game
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 }
 
 function mapStateToProps(state: any) {
-    return {
-        score: state.game.score,
-    }
+  return {
+    score: state.game.score,
+  };
 }
 
 const mapDispatchToProps = {
-    updateScore: updateScore,
-}
+  updateScore: updateScore,
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(game_form)
+export default connect(mapStateToProps, mapDispatchToProps)(game_form);

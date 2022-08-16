@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { PublicKey } from "@solana/web3.js";
 import { useWallet } from "@solana/wallet-adapter-react";
 import {
   WalletDisconnectButton,
@@ -8,9 +9,9 @@ import {
 import LogoPrimary from "/assets/images/mineboy-logo-white.png";
 
 const Navbar = () => {
-  const { connected } = useWallet();
+  const { connected, publicKey } = useWallet();
   console.log(connected);
-
+  if (publicKey) console.log({ KEY: new PublicKey(publicKey).toString() });
   return (
     <div className="shadow-lg py-6 w-full">
       <div className=" flex w-[90%] mx-auto justify-between">

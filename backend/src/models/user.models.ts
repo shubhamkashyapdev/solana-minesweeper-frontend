@@ -8,7 +8,7 @@ export interface User {
 
 const userSchema = new Schema<User>(
   {
-    name: { type: String, required: true },
+    name: { type: String, required: false },
     wallet: { type: String, required: true },
     socketId: { type: String },
   },

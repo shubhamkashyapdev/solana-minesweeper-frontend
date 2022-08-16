@@ -5,7 +5,7 @@ const onlineUserSchema = new Schema<User>(
   {
     name: {
       type: String,
-      required: true,
+      required: false,
     },
     socketId: {
       type: String,
