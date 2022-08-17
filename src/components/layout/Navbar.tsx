@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react"
-import { useWallet } from "@solana/wallet-adapter-react"
+import React, { useEffect, useState } from "react";
+import { useWallet } from "@solana/wallet-adapter-react";
 import {
   WalletDisconnectButton,
   WalletMultiButton,
-} from "@solana/wallet-adapter-react-ui"
+} from "@solana/wallet-adapter-react-ui";
 
-import LogoPrimary from "/assets/images/mineboy-logo-white.png"
+import LogoPrimary from "/assets/images/mineboy-logo-white.png";
 
 const Navbar = () => {
-  const { connected } = useWallet()
-  console.log(connected)
+  const { connected } = useWallet();
+  console.log(connected);
 
   return (
     <div className="shadow-lg py-6 w-full">
@@ -22,11 +22,11 @@ const Navbar = () => {
           />
         </div>
         <div>
-          <WalletMultiButton className="bg-primary py-2 px-4 rounded-full font-semibold text-primaryBlack cursor-pointer wallet__button" />
+          <WalletMultiButton className="bg-primary py-2 px-4 rounded-full font-semibold text-primaryBlack text-sm cursor-pointer wallet__button text-center" />
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;
