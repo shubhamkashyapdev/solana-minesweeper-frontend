@@ -31,7 +31,6 @@ import MinesweeperGame from "./pages/MinesweeperGame"
 import Footer from "./components/layout/Footer";
 function App() {
   const network = WalletAdapterNetwork.Devnet;
-
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
 
   const wallets = useMemo(
