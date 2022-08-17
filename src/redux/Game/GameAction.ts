@@ -1,9 +1,9 @@
-import { SET_OPPONENT, UPDATE_SCORE } from "./GameTypes"
+import { OPPONENT_DETAILS, PLAYER_BET_AMMOUNT, UPDATE_SCORE } from "./GameTypes"
 
 // @ts-ignore
-export const setOpponent = (opponent) => (dispatch, getState) => {
+export const setOpponentDetails = (opponent) => (dispatch, getState) => {
   dispatch({
-    type: SET_OPPONENT,
+    type: OPPONENT_DETAILS,
     payload: opponent,
   })
 }
@@ -15,3 +15,12 @@ export const updateScore = (score: number) => (dispatch, getState) => {
     payload: score,
   })
 }
+
+// @ts-ignore
+export const setBetAmount = (amount: number) => (dispatch, getState) => {
+  dispatch({
+    type: PLAYER_BET_AMMOUNT,
+    payload: amount,
+  })
+}
+

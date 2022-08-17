@@ -1,4 +1,4 @@
-import { SET_OPPONENT, UPDATE_SCORE } from "./GameTypes"
+import { OPPONENT_DETAILS, UPDATE_SCORE, PLAYER_BET_AMMOUNT } from "./GameTypes"
 
 interface Action {
   type: String
@@ -8,12 +8,13 @@ interface Action {
 const initialState = {
   opponent: null,
   score: 0,
+  betAmount: 0,
 }
 
 export const gameReducer = (state = initialState, action: Action) => {
   const { type, payload } = action
   switch (type) {
-    case SET_OPPONENT:
+    case OPPONENT_DETAILS:
       return {
         ...state,
         opponent: payload,
@@ -22,6 +23,11 @@ export const gameReducer = (state = initialState, action: Action) => {
       return {
         ...state,
         score: payload,
+      }
+    case PLAYER_BET_AMMOUNT:
+      return {
+        ...state,
+        betAmount: payload,
       }
     default:
       return state

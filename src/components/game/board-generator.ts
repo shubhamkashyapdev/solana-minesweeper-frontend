@@ -82,6 +82,7 @@ export class Board implements IBoard {
       this.slots[i].ShowHideCard(true)
       this.slots[i].ChangeCard(this.GetGem())
     }
+
     this.PlantBombs()
   }
 

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect, Subscription } from 'react-redux';
-import { updateScore } from '../../../redux/Game/GameAction';
+import { setBetAmount, updateScore } from '../../../redux/Game/GameAction';
 import { BetBalance, MainBalance } from '../balance';
 import { Select } from '@mantine/core';
 import { board } from '../board-generator';
@@ -32,29 +32,39 @@ export class game_form extends Component<{}, IState> {
 
 
     GetInputAmount(event: any) {
-
         this.setState((pState) => ({
             amount: BetBalance.Set(MainBalance.CheckIfBalance(event.target.value)),
             mode: pState.mode
         }))
-
     }
 
     Submit() {
-        console.log(this.state.amount)
-        if (this.state.amount > 0) {
+        //@todo - save in redux
+        if (board.isActive) {
+            return;
+        }
+
+        if (this.state.amount < 0) {
             alert("Please choose a bet amount")
             return;
         }
-        this.startGameSession();
+
+        if (this.state.amount > 100) {
+            return;
+        }
+
+        //@ts-ignore
+        this.props.setBetAmount(Number(this.state.amount))
+
+
         if (!board.isActive) {
+            this.startGameSession();
             // @ts-ignore
             this.props.updateScore(0)
             session.StartSession(this);
             return;
         }
         session.EndSession();
-
     }
 
 
@@ -89,7 +99,6 @@ export class game_form extends Component<{}, IState> {
             }
             this.setState({ time: this.state.time - 1 })
         }, 1000)
-
         return () => clearInterval(game_form.interval);
     }
 
@@ -103,21 +112,23 @@ export class game_form extends Component<{}, IState> {
         return `0${minutes}:${`${seconds}`.length === 1 ? `0${seconds}` : seconds}`
     }
 
-
     render() {
-
         return (
             <div className="formBody min-w-[300px]">
                 <div id='form_container' className="form_container">
                     <div className="flex justify-between my-2">
                         {/* @ts-ignore */}
                         <span>Score: {Number(this.props.score)}</span>
-                        <span>Remaining: {this.getTime(this.state.time)}</span></div>
+                        {/* @ts-ignore */}
+                        <span>Bet Amount: {Number(this.props.betAmount)}</span>
+                    </div>
+                    <div className="flex mb-2">
+                        <span>Remaining: {this.getTime(this.state.time)}</span>
+                    </div>
                     {/* @ts-ignore */}
 
-                    <span className='label' >Bet Amount</span>
+                    <span className='label mt-4' >Bet Amount</span>
                     <div>
-                        {/* <input className="w-full py-2 bg-dark2" id='betAmount' type="number" min='0' max='99999' value={this.state.amount} onChange={this.GetInputAmount} /> */}
                         <Select
                             id={`betAmount`}
                             placeholder="Pick one"
@@ -134,7 +145,7 @@ export class game_form extends Component<{}, IState> {
                         />
                     </div>
 
-                    <span className='label'>Number Of Thieves</span>
+                    <span className='label mt-4'>Number Of Thieves</span>
                     <div className="numberOfThieves">
                         <div className="input_container">
                             <input onChange={this.onChangeValue} type="radio" id="fiveThieves" name="nThieves" value="1" defaultChecked></input>
@@ -150,8 +161,11 @@ export class game_form extends Component<{}, IState> {
                         </div>
 
                     </div>
-                    <div className="flex">
-                        <a onClick={this.Submit} id='start-cashout' className="bg-primary text-primaryBlack py-2 flex-1 cursor-pointer">Start Game</a>
+                    <div className="flex mt-4">
+                        <button disabled={board.isActive} onClick={this.Submit} id='start-cashout' className="bg-primary shadow-lg text-primaryBlack py-2 flex-1 cursor-pointer disabled:cursor-not-allowed disabled:bg-primaryBlack/40 disabled:text-primary">Start Game</button>
+                    </div>
+                    <div className="flex mt-4">
+                        <button onClick={() => { }} id='start-cashout' className={`py-2 flex-1 cursor-pointer ${board.isActive ? 'bg-primary text-primaryBlack cursor-auto' : 'bg-black/40 text-primary cursor-not-allowed'}`}>Leave Game</button>
                     </div>
                 </div>
             </div>
@@ -162,11 +176,13 @@ export class game_form extends Component<{}, IState> {
 function mapStateToProps(state: any) {
     return {
         score: state.game.score,
+        betAmount: state.game.betAmount,
     }
 }
 
 const mapDispatchToProps = {
     updateScore: updateScore,
+    setBetAmount: setBetAmount,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(game_form)
