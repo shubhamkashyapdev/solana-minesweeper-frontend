@@ -15,7 +15,7 @@ export const gameHistory = async (req: Request, res: Response) => {
       .populate("player1")
       .populate("player2");
     // console.log({ gameHistory });
-    res.json({ success: true, data: gameHistory });
+    res.json({ count: gameHistory.length, success: true, data: gameHistory });
   } catch (err) {
     console.log({ err });
     res
@@ -24,28 +24,20 @@ export const gameHistory = async (req: Request, res: Response) => {
   }
 };
 
-export const addnewGameEntry = async (req: Request, res: Response) => {
-  const player1 = req.body.player1;
-  const player2 = req.body.player2;
-  const amount = req.body.amount;
-
-  if (!player1 || !player2 || !amount) {
-    res.status(400).json({
-      success: false,
-      message: "amount & player1 & player2 Id required ",
-    });
-    return;
-  }
-
+export const addGame = async (
+  player1: string,
+  player2: string,
+  amount: number
+) => {
   try {
+    console.log("adding game to list");
     const newEntry = new gameModel({
       player1: player1,
       player2: player2,
       amount: amount,
     });
     await newEntry.save();
-    res.json({ success: true, message: "Done " });
   } catch (err) {
-    res.status(400).json({ err: err, success: false });
+    console.log({ err });
   }
 };

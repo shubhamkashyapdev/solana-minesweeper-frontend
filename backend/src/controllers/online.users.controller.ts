@@ -9,8 +9,6 @@ export interface Data {
 }
 
 export const addtoOnlineList = async (data: Data) => {
-  console.log("adding user to online array");
-  //   console.log({ data });
   const newEntry = new onlineUserModal({
     name: data.name,
     profilePic: data.profilePic,
@@ -21,7 +19,6 @@ export const addtoOnlineList = async (data: Data) => {
 };
 
 export const removeUser = async (socketid: string) => {
-  console.log("removing user to online array");
   await onlineUserModal.findOneAndRemove({ socketId: socketid });
   await availableUserModel.findOneAndRemove({ socketId: socketid });
 };

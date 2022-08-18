@@ -6,10 +6,13 @@ interface Game {
   amount: number;
 }
 
-const gameShema = new Schema<Game>({
-  amount: { type: Number, required: true },
-  player1: { type: Schema.Types.ObjectId, ref: "Users" },
-  player2: { type: Schema.Types.ObjectId, ref: "Users" },
-});
+const gameShema = new Schema<Game>(
+  {
+    amount: { type: Number, required: true },
+    player1: { type: Schema.Types.ObjectId, ref: "Users" },
+    player2: { type: Schema.Types.ObjectId, ref: "Users" },
+  },
+  { timestamps: true }
+);
 
-export const gameModel = model<Game>("Game", gameShema);
+export const gameModel = model<Game>("GamesRecord", gameShema);

@@ -17,11 +17,12 @@ import {
   removeUser,
 } from "./controllers/online.users.controller";
 import onlineUsersRoute from "./routes/OnlineUsers.route";
+import { addGame } from "./controllers/game.controller";
 
 const app = express();
 const PORT = config.get("PORT");
 
-app.use(fileupload({ useTempFiles: true, tempFileDir: "/temp/" }));
+app.use(fileupload({ useTempFiles: true }));
 app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(morgan("dev"));
@@ -43,11 +44,9 @@ const socketIo: any = init(server);
 socketIo.use(async (socket: any, next: any) => {
   const walletId = socket.handshake.auth.walletId;
   const checkUser = await userModal.findOne({ wallet: walletId });
-  console.log({ checkUser, walletId });
   if (!walletId) {
     return socket.disconnect();
   } else if (checkUser) {
-    // console.log(checkUser);
     checkUser.socketId = socket.id;
     checkUser.save();
     await addtoOnlineList(checkUser);
@@ -59,7 +58,6 @@ socketIo.use(async (socket: any, next: any) => {
       profilePic: "",
     });
     await newUser.save();
-    console.log({ newUser });
   }
 
   next();
@@ -80,7 +78,7 @@ socketIo.on("connection", async (socket: any) => {
 
   socket.on("msgToCustomRoom", (msg: string, roomId: string) => {
     // msg to custome room
-    socket.in(roomId).emit("message", msg);
+    socket.to(roomId).emit("message", msg);
   });
 
   socket.on(
@@ -106,22 +104,29 @@ socketIo.on("connection", async (socket: any) => {
   );
 });
 
+function sleep(time: number, func?: () => void) {
+  return new Promise((resolve) =>
+    setTimeout(() => {
+      resolve(true);
+    }, time)
+  );
+}
+
 async function startMatching(socket: any, data: any) {
-  console.log({ data });
   try {
     console.log("starting Search");
-
-    // let count = 0;
     let isOpponent = false;
-
     while (!isOpponent) {
-      const checkAvailablility = await availableUserModel.find({
+      socket.emit("message", "Searching");
+      await sleep(5000);
+      const checkAvailablility = await availableUserModel.findOne({
         userId: data.userId,
         amount: data.amount,
         level: data.level,
       });
 
       if (!checkAvailablility) {
+        console.log("already paired with someOne");
         return (isOpponent = true);
       }
 
@@ -131,15 +136,16 @@ async function startMatching(socket: any, data: any) {
         level: data.level,
       });
       if (opponent) {
+        addGame(data.userId, opponent.userId, data.amount);
+        console.log({ opponent, notifiying: "opponent" });
+        socket.to(opponent.socketId).emit("gotOpponent", data, data.socketId);
+        socket
+          // .to(data.socketId)
+          .emit("gotOpponent", opponent, opponent.socketId);
         await availableUserModel.findOneAndRemove({
           userId: opponent.userId,
         });
         await availableUserModel.findOneAndRemove({ userId: data.userId });
-        socket.to(opponent.socketId).emit("gotOpponent", data, data.socketId);
-        socket
-          .to(data.socketId)
-          .emit("gotOpponent", opponent, opponent.socketId);
-        console.log({ opponent });
         // addnewGameEntry(data.userId, opponent.userId, data.amount);
 
         isOpponent = true;
