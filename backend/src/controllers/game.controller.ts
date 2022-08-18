@@ -8,9 +8,12 @@ export const gameHistory = async (req: Request, res: Response) => {
     res.status(400).json({ success: false, message: "palyerId Required" });
   }
   try {
-    const gameHistory = await gameModel.find({
-      or$: [{ player1: playerId }, { player2: playerId }],
-    });
+    const gameHistory = await gameModel
+      .find({
+        or$: [{ player1: playerId }, { player2: playerId }],
+      })
+      .populate("player1")
+      .populate("player2");
     // console.log({ gameHistory });
     res.json({ success: true, data: gameHistory });
   } catch (err) {
@@ -21,30 +24,28 @@ export const gameHistory = async (req: Request, res: Response) => {
   }
 };
 
-export const addToHistory = async (req: Request, res: Response) => {
-  // add a record to history
-  const player1 = req.body.player1Id;
-  const player2 = req.body.player2Id;
+export const addnewGameEntry = async (req: Request, res: Response) => {
+  const player1 = req.body.player1;
+  const player2 = req.body.player2;
   const amount = req.body.amount;
 
   if (!player1 || !player2 || !amount) {
     res.status(400).json({
-      message: "player1Id, player2Id, amount required",
       success: false,
+      message: "amount & player1 & player2 Id required ",
     });
+    return;
   }
 
   try {
-    const newGame = new gameModel({
-      amount: amount,
+    const newEntry = new gameModel({
       player1: player1,
       player2: player2,
+      amount: amount,
     });
-
-    await newGame.save();
-    res.json({ success: true, message: "game added to History" });
+    await newEntry.save();
+    res.json({ success: true, message: "Done " });
   } catch (err) {
-    console.log({ err });
     res.status(400).json({ err: err, success: false });
   }
 };

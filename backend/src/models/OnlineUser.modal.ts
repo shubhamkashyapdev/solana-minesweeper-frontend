@@ -15,6 +15,10 @@ const onlineUserSchema = new Schema<User>(
       type: String,
       required: true,
     },
+    profilePic: {
+      type: String,
+      required: false,
+    },
   },
   { timestamps: true }
 );

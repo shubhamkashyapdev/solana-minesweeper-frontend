@@ -1,7 +1,11 @@
 import express from "express";
-import { resgister } from "../controllers/registration.controller";
+import {
+  resgister,
+  profileImgUpload,
+} from "../controllers/registration.controller";
 const router = express.Router();
 
 router.post("/registration", resgister);
+router.post("/addProfileImage", profileImgUpload);
 
 export default router;

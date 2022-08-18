@@ -1,8 +1,7 @@
 import express from "express";
-import { gameHistory, addToHistory } from "../controllers/game.controller";
+import { gameHistory, addnewGameEntry } from "../controllers/game.controller";
 const router = express.Router();
 
-router.post("/gameHistory", addToHistory);
 router.get("/gameHistory", gameHistory);
-
+router.post("/addGameHistory", addnewGameEntry);
 export default router;

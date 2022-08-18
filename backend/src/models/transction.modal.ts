@@ -3,6 +3,7 @@ import { Schema, model } from "mongoose";
 interface Transction {
   user: string;
   amount: number;
+  walletId: string;
 }
 
 const transctionSchema = new Schema<Transction>(
@@ -13,6 +14,10 @@ const transctionSchema = new Schema<Transction>(
     },
     amount: {
       type: Number,
+      required: true,
+    },
+    walletId: {
+      type: String,
       required: true,
     },
   },
