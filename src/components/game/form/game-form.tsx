@@ -140,15 +140,17 @@ export class game_form extends Component<{}, IState> {
     static getInterval() {
         return this.interval;
     }
-
+    
     getTime(num: number): string {
         let minutes = Math.floor(num / 60);
         let seconds = num - (minutes * 60);
         return `0${minutes}:${`${seconds}`.length === 1 ? `0${seconds}` : seconds}`
     }
-
-    render() {
+    componentDidMount(){
         console.log('ye render ho rha hai kay?', this.state)
+
+    }
+    render() {
         return (
             <>
                 {

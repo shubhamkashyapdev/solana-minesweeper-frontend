@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 interface SocketData {
@@ -54,33 +54,71 @@ const SearchOpponent: React.FC<ISearchOpponent> = ({ hidePopup, startGame }) => 
     //@ts-ignore
     const { walletAddress, socket, betAmount, level } = useSelector(state => state.game)
     console.log({ walletAddress, socket, betAmount, level })
-    useEffect(() => {
-        socket.emit("availableForMatch", walletAddress, betAmount, level)
-    }, [])
+    const availableForMatch=useRef(false)
+    const gotOpponent=useRef(false)
 
-    useEffect(() => {
-        socket.on("gotOpponent", (data: SocketData, roomId: string) => {
-            console.log({ data, roomId })
-            setOpponent({ ...data, roomId })
-        })
-    }, [])
+useEffect(() => {
+  if (availableForMatch.current===false) {
+      socket.emit("availableForMatch", walletAddress, betAmount, level)
+      
+      console.log("1")
+    }
 
-    useEffect(() => {
-        if (opponent?.roomId) {
-            socket.emit("msgToCustomRoom", `Room Created successfully :)`, opponent.roomId)
+  return () => {
+    availableForMatch.current=true
+  }
+}, [])
+
+useEffect(() => {
+  if (gotOpponent.current===false) {
+            
+    socket.on("gotOpponent", (data: SocketData, roomId: string) => {
+        console.log({ data, roomId })
+
+        setOpponent({ ...data, roomId })
+        console.log("2")
+    })
+  }
+
+  return () => {
+    gotOpponent.current===false
+  }
+}, [])
+
+
+useEffect(() => {
+
+    
+      if (opponent?.roomId) {
+          socket.emit("msgToCustomRoom", `Room Created successfully :)`, opponent.roomId)
+          console.log("3")
         }
-    }, [opponent])
+    
 
-    useEffect(() => {
-        socket.on("message", (message: string) => {
-            //@todo - show in notification
-            console.log({ message })
-            //start the game
-            //@ts-ignore
-            // hidePopup();
-            startGame();
-        })
-    }, [])
+  return () => {
+    // gotOpponent.current=true
+  }
+}, [opponent])
+
+useEffect(() => {
+//   if (gotOpponent.current===false) {
+    socket.on("message", (message: string) => {
+        //@todo - show in notification
+        console.warn({ message })
+        //start the game
+        //@ts-ignore
+        hidePopup();
+        startGame();
+    })
+    console.log("4")
+//   }
+
+  return () => {
+    // gotOpponent.current=true
+    // socket.off()
+    
+  }
+}, [])
 
 
 
