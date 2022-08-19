@@ -1648,6 +1648,14 @@
   resolved "https://registry.yarnpkg.com/@react-native/polyfills/-/polyfills-2.0.0.tgz#4c40b74655c83982c8cf47530ee7dc13d957b6aa"
   integrity sha512-K0aGNn1TjalKj+65D7ycc1//H9roAQ51GJVk5ZJQFb2teECGmzd86bYDC0aYdbRf7gtovescq4Zt6FR0tgXiHQ==
 
+"@redux-devtools/extension@^3.2.3":
+  version "3.2.3"
+  resolved "https://registry.yarnpkg.com/@redux-devtools/extension/-/extension-3.2.3.tgz#589361d9a62326558c39c8a2e09c4acdbe6393e0"
+  integrity sha512-y90IIqdQF6kIkP4KfBCfiFrnu9KMrEPUmcnb5A3v12tjfwRJUXecX8vCEbFqqJLjOomvVmis0Aal7QdFjk6CRQ==
+  dependencies:
+    "@babel/runtime" "^7.18.3"
+    immutable "^4.0.0"
+
 "@sideway/address@^4.1.3":
   version "4.1.4"
   resolved "https://registry.yarnpkg.com/@sideway/address/-/address-4.1.4.tgz#03dccebc6ea47fdc226f7d3d1ad512955d4783f0"
