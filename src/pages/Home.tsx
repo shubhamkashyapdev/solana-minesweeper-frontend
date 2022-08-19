@@ -3,7 +3,7 @@ import { GameCards, HomeInfoBox } from "../components/common";
 
 //redux
 import { useSelector, useDispatch } from "react-redux";
-import { setOpponent } from "../redux/Game/GameAction";
+import { setOpponentDetails } from "../redux/Game/GameAction";
 import { RootState } from "../redux/store";
 import Footer from "../components/layout/Footer";
 const Home = () => {
@@ -13,7 +13,7 @@ const Home = () => {
 
   useEffect(() => {
     // @ts-ignore
-    dispatch(setOpponent("Sourabh"));
+    dispatch(setOpponentDetails("Sourabh"));
   }, []);
   return (
     <div className="container pb-10">
