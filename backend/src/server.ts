@@ -86,6 +86,15 @@ socketIo.on("connection", async (socket: any) => {
     async (walletId: any, amount: any, level: any) => {
       console.log("Player Available for Match", walletId);
 
+      // const alreadySearching = await availableUserModel.findOne({
+      //   wallet: walletId,
+      // });
+
+      // if (alreadySearching) {
+      //   console.log("already in Matching");
+      //   return false;
+      // }
+
       const checkUser = await userModal.findOne({ wallet: walletId });
       if (checkUser) {
         const newEntry = new availableUserModel({
@@ -105,7 +114,7 @@ socketIo.on("connection", async (socket: any) => {
 });
 
 function sleep(time: number, func?: () => void) {
-  return new Promise((resolve) =>
+  return new Promise((resolve, reject) =>
     setTimeout(() => {
       resolve(true);
     }, time)
@@ -117,7 +126,7 @@ async function startMatching(socket: any, data: any) {
     console.log("starting Search");
     let isOpponent = false;
     while (!isOpponent) {
-      socket.emit("message", "Searching");
+      // socket.emit("message", "Searching");
       await sleep(5000);
       const checkAvailablility = await availableUserModel.findOne({
         userId: data.userId,

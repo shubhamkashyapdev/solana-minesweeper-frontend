@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { userModal } from "../models/user.models";
 import { v2 as cloudinary } from "cloudinary";
-import { UploadedFile } from "express-fileupload";
 
 cloudinary.config({
   cloud_name: "saffronsanjeet",
