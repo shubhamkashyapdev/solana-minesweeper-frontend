@@ -82,6 +82,13 @@ socketIo.on("connection", async (socket: any) => {
   });
 
   socket.on(
+    "transferScore",
+    (roomId: string, score: number, gameover: boolean) => {
+      socket.to(roomId).emit(score, gameover);
+    }
+  );
+
+  socket.on(
     "availableForMatch",
     async (walletId: any, amount: any, level: any) => {
       console.log("Player Available for Match", walletId);
