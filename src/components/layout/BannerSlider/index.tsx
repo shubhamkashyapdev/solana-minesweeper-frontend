@@ -52,3 +52,5 @@ BannerSlider.defaultProps = {
 };
 
 export default BannerSlider;
+
+

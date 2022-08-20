@@ -159,15 +159,15 @@ class Session {
 
   ChangeCashout(isActive: boolean) {
     if (isActive) {
-      this.cashoutBtn.innerHTML =
-        "Cashout " +
-        "<span>" +
-        Round(CurBetBalance.GetValue() * board.multiplier, 2) +
-        "$</span>"
+      // this.cashoutBtn.innerHTML =
+      //   "Cashout " +
+      //   "<span>" +
+      //   Round(CurBetBalance.GetValue() * board.multiplier, 2) +
+      //   "$</span>"
       return
     }
 
-    this.cashoutBtn.innerHTML = "Start Game"
+    // this.cashoutBtn.innerHTML = "Start Game"
     return
   }
 }

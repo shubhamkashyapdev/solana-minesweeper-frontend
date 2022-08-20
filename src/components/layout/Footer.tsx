@@ -7,7 +7,6 @@ const Footer = () => {
     <div className="w-full bg-black ">
       <div className="sm:grid sm:grid-cols-2  grid md:grid-cols-4 px-10 pb-12 border-b-[1px] border-border">
         {/* First Div Start */}
-
         <div className="">
           <img
             className="w-[400px] pt-2"

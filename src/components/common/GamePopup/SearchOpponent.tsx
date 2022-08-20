@@ -1,5 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { WalletNotConnectedError } from "@solana/wallet-adapter-base"
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { PublicKey, Transaction, SystemProgram } from '@solana/web3.js'
 
 interface SocketData {
   amount: number;
@@ -24,7 +27,61 @@ interface ISearchOpponent {
   startGame: () => void;
 }
 
-const Card = () => {
+interface ICard {
+  amount: number;
+  startGameSession: () => void;
+}
+
+const Card: React.FC<ICard> = ({ amount, startGameSession }) => {
+  const { publicKey, sendTransaction } = useWallet();
+  const { connection } = useConnection();
+  const onClick = useCallback(async () => {
+    if (!publicKey) {
+      throw new WalletNotConnectedError()
+    }
+
+    let pubkey = new PublicKey(publicKey)
+    console.log({ pubkey: pubkey.toString() })
+    const transaction = new Transaction().add(
+      SystemProgram.transfer({
+        fromPubkey: publicKey,
+        //TODO statsic public to be replaced with client's public key
+        toPubkey: new PublicKey("6VaBX6vcw6BxozX86bTrBiJQPfpF3unSejp5Z6tr9Ldz"),
+        // 1 SOL = 10**9 lamport
+        // TODO replace lamport vl;aue with the value to be sent for registeration
+        lamports: 10000000,
+      })
+    )
+
+    transaction.feePayer = pubkey
+
+    let { blockhash } = await connection.getRecentBlockhash()
+    transaction.recentBlockhash = blockhash
+    let signed = ""
+    try {
+      //@ts-ignore
+      signed = await window.solana.signTransaction(transaction)
+    } catch (err) {
+      console.log(`Error in sign transaction : ${err}`)
+    }
+
+    let txid = ""
+    try {
+      //@ts-ignore
+      txid = await connection.sendRawTransaction(signed.serialize())
+    } catch (ex) {
+      console.log(`Error sending transaction: ${ex}`)
+    }
+    try {
+      await connection.confirmTransaction(txid)
+      console.log(`SOL deposit successful: ${txid}`)
+      //@todo - save in database
+      //@todo - start the game
+      startGameSession();
+    } catch (err) {
+      console.log(`Unable to confirm transaction: ${err}`)
+    }
+  }, [publicKey, sendTransaction, connection])
   return (
     <div className="top-[50%] h-[300px] w-[500px] bg-primaryBlack shadow-lg rounded-2xl flex-col  items-center">
       <div className="flex flex-col w-full justify-center items-center h-full">
@@ -50,7 +107,7 @@ const Card = () => {
           </div>
         </div>
         <div className="my-6">
-          <button>Game starting in: 00:00</button>
+          <button onClick={onClick} className="bg-primary text-black py-2 px-6 rounded-full font-bold">Pay {amount}: SOL</button>
         </div>
       </div>
     </div>
@@ -73,10 +130,7 @@ const SearchOpponent: React.FC<ISearchOpponent> = ({
   useEffect(() => {
     if (availableForMatch.current === false) {
       socket.emit("availableForMatch", walletAddress, betAmount, level);
-
-      console.log("1");
     }
-
     return () => {
       availableForMatch.current = true;
     };
@@ -86,9 +140,7 @@ const SearchOpponent: React.FC<ISearchOpponent> = ({
     if (gotOpponent.current === false) {
       socket.on("gotOpponent", (data: SocketData, roomId: string) => {
         console.log({ data, roomId });
-
         setOpponent({ ...data, roomId });
-        // console.log()
       });
     }
 
@@ -104,38 +156,30 @@ const SearchOpponent: React.FC<ISearchOpponent> = ({
         `Room Created successfully :)`,
         opponent.roomId
       );
-      console.log("3");
     }
 
     return () => {
-      // gotOpponent.current=true
+
     };
   }, [opponent]);
 
   useEffect(() => {
-    //   if (gotOpponent.current===false) {
     socket.on("message", (message: string) => {
-      //@todo - show in notification
       console.warn({ message });
-      //start the game
-      //@ts-ignore
-      hidePopup();
-      startGame();
-      //@ts-ignore
-    //   socket.emit("transferScore", opponent.roomId, score); transfer score opponent
     });
-    console.log("4");
-    //   }
-
     return () => {
-      // gotOpponent.current=true
-      // socket.off()
     };
   }, []);
 
+  const startGameSession = () => {
+    //@ts-ignore
+    hidePopup();
+    startGame();
+  }
+
   return (
     <div className="bg-primaryBlack/50 z-10 fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center">
-      <Card />
+      <Card startGameSession={startGameSession} amount={betAmount} />
     </div>
   );
 };
