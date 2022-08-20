@@ -36,10 +36,16 @@ interface ICard {
 interface IStartGame {
   startGame: boolean;
 }
+interface ITransactions {
+  myTransaction: boolean;
+  opponentTransaction: boolean;
+}
 
 const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
-  const [startGame, setStartGame] = useState<boolean>(false)
-  console.log({ startGame })
+  const [transactions, setTransactions] = useState<ITransactions>({
+    myTransaction: false,
+    opponentTransaction: false,
+  })
   //@ts-ignore
   const { socket } = useSelector(state => state.game)
   const { publicKey, sendTransaction } = useWallet();
@@ -47,7 +53,28 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
   useEffect(() => {
     socket.on(`paymentRecieved`, (id: string) => {
       if (id !== opponent?.transactionId) {
-        console.warn(`opponent payment received!`);
+        setTransactions((prevState) => {
+          console.warn({
+            ...prevState,
+            myTransaction: true,
+          })
+          return {
+            ...prevState,
+            myTransaction: true,
+          }
+        })
+      }
+      if (id === opponent?.transactionId) {
+        setTransactions((prevState) => {
+          console.warn({
+            ...prevState,
+            opponentTransaction: true,
+          })
+          return {
+            ...prevState,
+            opponentTransaction: true,
+          }
+        })
       }
     });
   }, [])
@@ -55,7 +82,9 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
     socket.on(`startGame`, (game: IStartGame) => {
       if (game.startGame) {
         console.warn(`start game!`);
-        setStartGame(true)
+        //@todo - save in database
+        //@todo - start the game
+        startGameSession();
       }
     })
   }, [])
@@ -105,10 +134,6 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
       console.log(`SOL deposit successful: ${txid}`)
       // it accept three args: signature, isPaid, transactionId,roomId
       socket.emit('updatePayment', txid, true, opponent?.transactionId, opponent?.roomId);
-
-      //@todo - save in database
-      //@todo - start the game
-      startGameSession();
     } catch (err) {
       console.log(`Unable to confirm transaction: ${err}`)
     }
@@ -116,6 +141,11 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
   return (
     <div className="top-[50%] h-[300px] w-[500px] bg-primaryBlack shadow-lg rounded-2xl flex-col  items-center">
       <div className="flex flex-col w-full justify-center items-center h-full">
+        {
+          transactions.opponentTransaction === false && (
+            <div className="mb-4 text-center bg-primary px-2 text-black">Waithing for opponent to do the transaction!</div>
+          )
+        }
         <div className="flex items-center justify-between w-[80%] mx-auto">
           <div className="w-28 h-28 rounded-full shadow-lg border-4 border-white">
             <img
@@ -139,8 +169,8 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
         </div>
         <div className="my-6">
           {
-            startGame ? (
-              <button onClick={onClick} className="bg-primary text-black py-2 px-6 rounded-full font-bold">Pay {amount}: SOL</button>
+            opponent !== null ? (
+              <button onClick={onClick} className="bg-primary text-black py-2 px-6 rounded-full font-bold">Pay {amount}: SQL</button>
             ) : <div>Searching for the opponent!</div>
           }
         </div>
@@ -178,8 +208,8 @@ const SearchOpponent: React.FC<ISearchOpponent> = ({
         console.log({ data, roomId });
         id = roomId;
         setOpponent({ ...data, roomId, transactionId });
+        socket.emit('joinCustomRoom', id);
       });
-      socket.emit('joinCustomRoom', id);
     }
     return () => {
       gotOpponent.current === false;

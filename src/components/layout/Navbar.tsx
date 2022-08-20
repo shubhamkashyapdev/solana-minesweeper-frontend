@@ -23,7 +23,7 @@ const Navbar = () => {
     let connection: any;
     console.log({ walletAddress, socket })
     if (walletAddress && !socket) {
-      connection = io("http://192.168.18.241:5000", {
+      connection = io("http://192.168.18.249:5000", {
         auth: { walletId: walletAddress }
       })
       // @ts-ignore
