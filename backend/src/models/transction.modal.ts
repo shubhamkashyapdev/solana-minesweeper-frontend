@@ -4,6 +4,7 @@ interface Transction {
   walletId: string;
   amount: number;
   signature: string;
+  status: Boolean;
 }
 
 const transctionSchema = new Schema<Transction>(
@@ -19,6 +20,10 @@ const transctionSchema = new Schema<Transction>(
     signature: {
       type: String,
       required: true,
+    },
+    status: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }

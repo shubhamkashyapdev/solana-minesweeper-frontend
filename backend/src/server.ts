@@ -6,6 +6,7 @@ import bodyParser from "body-parser";
 import morgan from "morgan";
 import cors from "cors";
 import fileupload from "express-fileupload";
+import { v4 as uuidv4 } from "uuid";
 
 import userRotes from "./routes/user.registration.route";
 import gameRoutes from "./routes/game.route";
@@ -18,7 +19,11 @@ import {
 } from "./controllers/online.users.controller";
 import onlineUsersRoute from "./routes/OnlineUsers.route";
 import { addGame } from "./controllers/game.controller";
-import { addTrasction } from "./controllers/transctions.controller";
+import {
+  addTrasction,
+  updateTransction,
+} from "./controllers/transctions.controller";
+import { gameRecordsModal } from "./models/gameRecords.modal";
 
 const app = express();
 const PORT = config.get("PORT");
@@ -78,28 +83,28 @@ socketIo.on("connection", async (socket: any) => {
   });
 
   socket.on("msgToCustomRoom", (msg: string, roomId: string) => {
-    // msg to custome room
-    socket.to(roomId).emit("message", msg);
+    socketIo.to(roomId).emit("message", msg);
   });
 
   socket.on(
-    "transferScore",
-    (roomId: string, score: number, gameover: boolean) => {
-      socket.to(roomId).emit(score, gameover);
+    "updatePayment",
+    async (signature: string, isPaid: boolean, id: string, gameId: string) => {
+      await updateTransction(id, signature, isPaid);
+
+      socketIo.to(gameId).emit("paymentRecieved", { transctionId: id });
+
+      const payment = await isPayment(gameId);
+      if (payment) {
+        socketIo.to(gameId).emit("startGame", { startGame: true });
+      }
     }
   );
 
-  socket.on(
-    "notifyPayment",
-    async (signature: string, walletId: string, amount: number) => {
-      const payment = await addTrasction({
-        walletId: walletId,
-        signature: signature,
-        amount: amount,
-      });
-      socket.emit("startGame", payment);
-    }
-  );
+  socket.on("joinCustomRoom", (roomId: string) => {
+    // join Custome Room
+    socket.join(roomId);
+    socket.emit("message", "joined Room");
+  });
 
   socket.on(
     "availableForMatch",
@@ -126,6 +131,7 @@ socketIo.on("connection", async (socket: any) => {
           userId: checkUser._id,
           socketId: checkUser.socketId,
           profilePic: checkUser.profilePic,
+          walletId: checkUser.wallet,
         });
         await newEntry.save();
 
@@ -167,15 +173,36 @@ async function startMatching(socket: any, data: any) {
         level: data.level,
       });
       if (opponent) {
-        addGame(data.userId, opponent.userId, data.amount);
-        console.log({ opponent, notifiying: "opponent" });
-        socket.to(opponent.socketId).emit("gotOpponent", data, data.socketId);
-        socket.emit("gotOpponent", opponent, opponent.socketId);
         await availableUserModel.findOneAndRemove({
           userId: opponent.userId,
         });
         await availableUserModel.findOneAndRemove({ userId: data.userId });
-        // addnewGameEntry(data.userId, opponent.userId, data.amount);
+
+        const p1Id = await addTrasction(
+          data.amount,
+          data.walletId,
+          "false",
+          false
+        );
+
+        const p2Id = await addTrasction(
+          opponent.amount,
+          opponent.walletId,
+          "false",
+          false
+        );
+
+        const roomid = uuidv4();
+        const newGame = new gameRecordsModal({
+          gameId: roomid,
+          user1: p1Id,
+          user2: p2Id,
+        });
+        await newGame.save();
+
+        console.log({ opponent, notifiying: "opponent" });
+        socket.to(opponent.socketId).emit("gotOpponent", data, roomid, p1Id);
+        socket.emit("gotOpponent", opponent, roomid, p2Id);
 
         isOpponent = true;
       } else {
@@ -188,4 +215,21 @@ async function startMatching(socket: any, data: any) {
   } catch (err) {
     console.log(err);
   }
+}
+
+async function isPayment(gameId: string) {
+  return new Promise(async (resolve) => {
+    const game = await gameRecordsModal
+      .findOne({ gameId: gameId })
+      .populate("user1")
+      .populate("user2");
+    if (game) {
+      console.log(game);
+      if (game.user1.status && game.user1.status) {
+        resolve(true);
+      } else {
+        resolve(false);
+      }
+    }
+  });
 }
