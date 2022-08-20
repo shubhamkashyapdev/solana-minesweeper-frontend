@@ -9,6 +9,13 @@ export interface Data {
 }
 
 export const addtoOnlineList = async (data: Data) => {
+  const check = await onlineUserModal.findOne({ wallet: data.wallet });
+
+  if (check) {
+    console.log({ message: "useralready exit" });
+    return;
+  }
+
   const newEntry = new onlineUserModal({
     name: data.name,
     profilePic: data.profilePic,

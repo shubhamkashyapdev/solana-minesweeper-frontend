@@ -18,6 +18,7 @@ import {
 } from "./controllers/online.users.controller";
 import onlineUsersRoute from "./routes/OnlineUsers.route";
 import { addGame } from "./controllers/game.controller";
+import { addTrasction } from "./controllers/transctions.controller";
 
 const app = express();
 const PORT = config.get("PORT");
@@ -89,21 +90,35 @@ socketIo.on("connection", async (socket: any) => {
   );
 
   socket.on(
+    "notifyPayment",
+    async (signature: string, walletId: string, amount: number) => {
+      const payment = await addTrasction({
+        walletId: walletId,
+        signature: signature,
+        amount: amount,
+      });
+      socket.emit("startGame", payment);
+    }
+  );
+
+  socket.on(
     "availableForMatch",
     async (walletId: any, amount: any, level: any) => {
       console.log("Player Available for Match", walletId);
 
-      // const alreadySearching = await availableUserModel.findOne({
-      //   wallet: walletId,
-      // });
-
-      // if (alreadySearching) {
-      //   console.log("already in Matching");
-      //   return false;
-      // }
-
       const checkUser = await userModal.findOne({ wallet: walletId });
+
       if (checkUser) {
+        const alreadySearching = await availableUserModel.findOne({
+          userId: checkUser._id,
+        });
+
+        if (alreadySearching) {
+          console.log("already in Matching");
+          socket.emit("message", `alrady in Maching  ${alreadySearching}`);
+          return false;
+        }
+
         const newEntry = new availableUserModel({
           // adding current user to available list
           amount: amount,
@@ -155,9 +170,7 @@ async function startMatching(socket: any, data: any) {
         addGame(data.userId, opponent.userId, data.amount);
         console.log({ opponent, notifiying: "opponent" });
         socket.to(opponent.socketId).emit("gotOpponent", data, data.socketId);
-        socket
-          // .to(data.socketId)
-          .emit("gotOpponent", opponent, opponent.socketId);
+        socket.emit("gotOpponent", opponent, opponent.socketId);
         await availableUserModel.findOneAndRemove({
           userId: opponent.userId,
         });
