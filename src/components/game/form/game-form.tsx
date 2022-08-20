@@ -149,8 +149,7 @@ export class game_form extends Component<{}, IState> {
         return `0${minutes}:${`${seconds}`.length === 1 ? `0${seconds}` : seconds}`
     }
     componentDidMount() {
-        console.log('ye render ho rha hai kay?', this.state)
-
+        console.log('game-form state: ', this.state)
     }
 
     render() {

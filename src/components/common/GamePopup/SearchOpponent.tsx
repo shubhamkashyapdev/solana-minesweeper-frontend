@@ -20,6 +20,7 @@ interface Opponent {
   _id: string;
   _v?: number;
   roomId: string;
+  transactionId: string;
 }
 
 interface ISearchOpponent {
@@ -31,12 +32,33 @@ interface ICard {
   amount: number;
   startGameSession: () => void;
   opponent: Opponent | null
-
+}
+interface IStartGame {
+  startGame: boolean;
 }
 
 const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
+  const [startGame, setStartGame] = useState<boolean>(false)
+  console.log({ startGame })
+  //@ts-ignore
+  const { socket } = useSelector(state => state.game)
   const { publicKey, sendTransaction } = useWallet();
   const { connection } = useConnection();
+  useEffect(() => {
+    socket.on(`paymentRecieved`, (id: string) => {
+      if (id !== opponent?.transactionId) {
+        console.warn(`opponent payment received!`);
+      }
+    });
+  }, [])
+  useEffect(() => {
+    socket.on(`startGame`, (game: IStartGame) => {
+      if (game.startGame) {
+        console.warn(`start game!`);
+        setStartGame(true)
+      }
+    })
+  }, [])
   const onClick = useCallback(async () => {
     if (!publicKey) {
       throw new WalletNotConnectedError()
@@ -47,17 +69,15 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
     const transaction = new Transaction().add(
       SystemProgram.transfer({
         fromPubkey: publicKey,
-        //TODO statsic public to be replaced with client's public key
-        toPubkey: new PublicKey("6VaBX6vcw6BxozX86bTrBiJQPfpF3unSejp5Z6tr9Ldz"),
+        //@todo - static publicKey to be replaced with program's publicKey
+        toPubkey: new PublicKey("7JnSaY4vLdxtS6BzpZkpoYVphxbWQTW2a59r4TxSPScq"),
         // 1 SOL = 10**9 lamport
-        // TODO replace lamport vl;aue with the value to be sent for registeration
-        lamports: 10000000,
+        lamports: Number(amount) * 1000000000,
       })
     )
 
     transaction.feePayer = pubkey
-
-    let { blockhash } = await connection.getRecentBlockhash()
+    let { blockhash } = await connection.getLatestBlockhash()
     transaction.recentBlockhash = blockhash
     let signed = ""
     try {
@@ -75,8 +95,17 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
       console.log(`Error sending transaction: ${ex}`)
     }
     try {
-      await connection.confirmTransaction(txid)
+      // await connection.confirmTransaction(txid)
+      const latestBlockHash = await connection.getLatestBlockhash();
+      await connection.confirmTransaction({
+        blockhash: blockhash,
+        lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+        signature: txid,
+      });
       console.log(`SOL deposit successful: ${txid}`)
+      // it accept three args: signature, isPaid, transactionId,roomId
+      socket.emit('updatePayment', txid, true, opponent?.transactionId, opponent?.roomId);
+
       //@todo - save in database
       //@todo - start the game
       startGameSession();
@@ -110,7 +139,7 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
         </div>
         <div className="my-6">
           {
-            opponent !== null ? (
+            startGame ? (
               <button onClick={onClick} className="bg-primary text-black py-2 px-6 rounded-full font-bold">Pay {amount}: SOL</button>
             ) : <div>Searching for the opponent!</div>
           }
@@ -144,12 +173,14 @@ const SearchOpponent: React.FC<ISearchOpponent> = ({
 
   useEffect(() => {
     if (gotOpponent.current === false) {
-      socket.on("gotOpponent", (data: SocketData, roomId: string) => {
+      let id = null;
+      socket.on("gotOpponent", (data: SocketData, roomId: string, transactionId: string) => {
         console.log({ data, roomId });
-        setOpponent({ ...data, roomId });
+        id = roomId;
+        setOpponent({ ...data, roomId, transactionId });
       });
+      socket.emit('joinCustomRoom', id);
     }
-
     return () => {
       gotOpponent.current === false;
     };
