@@ -110,7 +110,6 @@ export class Game extends React.Component {
             component.gameCanvas = thisDiv
           }}
         />
-
       </div>
     )
   }

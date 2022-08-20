@@ -30,9 +30,11 @@ interface ISearchOpponent {
 interface ICard {
   amount: number;
   startGameSession: () => void;
+  opponent: Opponent | null
+
 }
 
-const Card: React.FC<ICard> = ({ amount, startGameSession }) => {
+const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
   const { publicKey, sendTransaction } = useWallet();
   const { connection } = useConnection();
   const onClick = useCallback(async () => {
@@ -107,7 +109,11 @@ const Card: React.FC<ICard> = ({ amount, startGameSession }) => {
           </div>
         </div>
         <div className="my-6">
-          <button onClick={onClick} className="bg-primary text-black py-2 px-6 rounded-full font-bold">Pay {amount}: SOL</button>
+          {
+            opponent !== null ? (
+              <button onClick={onClick} className="bg-primary text-black py-2 px-6 rounded-full font-bold">Pay {amount}: SOL</button>
+            ) : <div>Searching for the opponent!</div>
+          }
         </div>
       </div>
     </div>
@@ -179,7 +185,7 @@ const SearchOpponent: React.FC<ISearchOpponent> = ({
 
   return (
     <div className="bg-primaryBlack/50 z-10 fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center">
-      <Card startGameSession={startGameSession} amount={betAmount} />
+      <Card opponent={opponent} startGameSession={startGameSession} amount={betAmount} />
     </div>
   );
 };
