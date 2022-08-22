@@ -12,6 +12,7 @@ interface SocketData {
   _id: string;
   _v?: number;
 }
+
 interface Opponent {
   amount: number;
   level: number;
@@ -50,8 +51,11 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
   const { socket } = useSelector(state => state.game)
   const { publicKey, sendTransaction } = useWallet();
   const { connection } = useConnection();
+
   useEffect(() => {
+    // @todo: fix duplicate keys
     socket.on(`paymentRecieved`, (id: string) => {
+      console.log({ id })
       if (id !== opponent?.transactionId) {
         setTransactions((prevState) => {
           console.warn({
@@ -64,12 +68,14 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
           }
         })
       }
+
       if (id === opponent?.transactionId) {
         setTransactions((prevState) => {
           console.warn({
             ...prevState,
             opponentTransaction: true,
           })
+
           return {
             ...prevState,
             opponentTransaction: true,
@@ -88,13 +94,13 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
       }
     })
   }, [])
-  const onClick = useCallback(async () => {
+  const makePayment = useCallback(async () => {
     if (!publicKey) {
       throw new WalletNotConnectedError()
     }
 
     let pubkey = new PublicKey(publicKey)
-    console.log({ pubkey: pubkey.toString() })
+
     const transaction = new Transaction().add(
       SystemProgram.transfer({
         fromPubkey: publicKey,
@@ -132,12 +138,63 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
         signature: txid,
       });
       console.log(`SOL deposit successful: ${txid}`)
+
       // it accept three args: signature, isPaid, transactionId,roomId
+      console.log({ txid, isPaid: true, opponent })
       socket.emit('updatePayment', txid, true, opponent?.transactionId, opponent?.roomId);
+      console.log('payment updated successfully')
     } catch (err) {
       console.log(`Unable to confirm transaction: ${err}`)
     }
-  }, [publicKey, sendTransaction, connection])
+  }, [publicKey, sendTransaction, connection, opponent])
+
+  const transferSOLToWinner = useCallback(async (amount: number) => {
+    if (!publicKey) {
+      throw new WalletNotConnectedError()
+    }
+    let pubkey = new PublicKey(publicKey)
+    const transaction = new Transaction().add(
+      SystemProgram.transfer({
+        fromPubkey: new PublicKey("7JnSaY4vLdxtS6BzpZkpoYVphxbWQTW2a59r4TxSPScq"),
+        toPubkey: publicKey,
+        lamports: Number(amount) * 1000000000,
+      })
+    )
+    transaction.feePayer = pubkey
+    let { blockhash } = await connection.getLatestBlockhash()
+    transaction.recentBlockhash = blockhash
+    let signed = ""
+    try {
+      //@ts-ignore
+      signed = await window.solana.signTransaction(transaction)
+    } catch (err) {
+      console.log(`Error in sign transaction : ${err}`)
+    }
+    let txid = ""
+    try {
+      //@ts-ignore
+      txid = await connection.sendRawTransaction(signed.serialize())
+    } catch (ex) {
+      console.log(`Error sending transaction: ${ex}`)
+    }
+    try {
+      // await connection.confirmTransaction(txid)
+      const latestBlockHash = await connection.getLatestBlockhash();
+      await connection.confirmTransaction({
+        blockhash: blockhash,
+        lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+        signature: txid,
+      });
+      console.log(`SOL deposit successful: ${txid}`)
+
+      // it accept three args: signature, isPaid, transactionId,roomId
+      console.log({ txid, isPaid: true, opponent })
+      socket.emit('updatePayment', txid, true, opponent?.transactionId, opponent?.roomId);
+      console.log('payment updated successfully')
+    } catch (err) {
+      console.log(`Unable to confirm transaction: ${err}`)
+    }
+  }, [publicKey, sendTransaction, connection, opponent])
   return (
     <div className="top-[50%] h-[300px] w-[500px] bg-primaryBlack shadow-lg rounded-2xl flex-col  items-center">
       <div className="flex flex-col w-full justify-center items-center h-full">
@@ -170,7 +227,7 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
         <div className="my-6">
           {
             opponent !== null ? (
-              <button onClick={onClick} className="bg-primary text-black py-2 px-6 rounded-full font-bold">Pay {amount}: SQL</button>
+              <button onClick={makePayment} className="bg-primary text-black py-2 px-6 rounded-full font-bold">Pay {amount}: SQL</button>
             ) : <div>Searching for the opponent!</div>
           }
         </div>
@@ -190,7 +247,6 @@ const SearchOpponent: React.FC<ISearchOpponent> = ({
   const availableForMatch = useRef(false);
   const gotOpponent = useRef(false);
   //@ts-ignore
-
   const score = useSelector((state) => state.game.score);
   useEffect(() => {
     if (availableForMatch.current === false) {
