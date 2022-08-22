@@ -4,41 +4,40 @@ import {
   WalletDisconnectButton,
   WalletMultiButton,
 } from "@solana/wallet-adapter-react-ui";
-import { PublicKey } from "@solana/web3.js"
+import { PublicKey } from "@solana/web3.js";
 import LogoPrimary from "/assets/images/mineboy-logo-white.png";
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch, useSelector } from "react-redux";
 import { setSocketIO, setWalletAddress } from "../../redux/Game/GameAction";
-import { io } from 'socket.io-client'
+import { io } from "socket.io-client";
 
 const Navbar = () => {
   //@ts-ignore
-  const { walletAddress, socket } = useSelector(state => state.game)
+  const { walletAddress, socket } = useSelector((state) => state.game);
 
-  console.log({ socket })
+  console.log({ socket });
 
   const { publicKey } = useWallet();
   const dispatch = useDispatch();
 
   useEffect(() => {
     let connection: any;
-    console.log({ walletAddress, socket })
+    console.log({ walletAddress, socket });
     if (walletAddress && !socket) {
       connection = io("http://192.168.18.241:5000", {
-        auth: { walletId: walletAddress }
-      })
+        auth: { walletId: walletAddress },
+      });
       // @ts-ignore
-      dispatch(setSocketIO(connection))
+      dispatch(setSocketIO(connection));
     }
-
   }, [walletAddress]);
 
   useEffect(() => {
     if (publicKey && !walletAddress) {
-      const address: string = new PublicKey(publicKey).toString()
+      const address: string = new PublicKey(publicKey).toString();
       //@ts-ignore
-      dispatch(setWalletAddress(address))
+      dispatch(setWalletAddress(address));
     }
-  }, [publicKey])
+  }, [publicKey]);
 
   return (
     <div className="shadow-lg py-6 w-full">
