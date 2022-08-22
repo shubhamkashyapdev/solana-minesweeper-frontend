@@ -51,12 +51,13 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
   const { socket } = useSelector(state => state.game)
   const { publicKey, sendTransaction } = useWallet();
   const { connection } = useConnection();
+  console.log({ transactions, opponent })
 
   useEffect(() => {
     // @todo: fix duplicate keys
-    socket.on(`paymentRecieved`, (id: string) => {
-      console.log({ id })
-      if (id !== opponent?.transactionId) {
+    socket.on(`paymentRecieved`, (id: any) => {
+      console.log(`///// payment recived`, id?.transactionId == opponent?.transactionId)
+      if (id?.transactionId === opponent?.transactionId) {
         setTransactions((prevState) => {
           console.warn({
             ...prevState,
@@ -67,9 +68,7 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
             myTransaction: true,
           }
         })
-      }
-
-      if (id === opponent?.transactionId) {
+      } else {
         setTransactions((prevState) => {
           console.warn({
             ...prevState,
@@ -83,11 +82,10 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
         })
       }
     });
-  }, [])
+  }, [opponent])
   useEffect(() => {
     socket.on(`startGame`, (game: IStartGame) => {
       if (game.startGame) {
-        console.warn(`start game!`);
         //@todo - save in database
         //@todo - start the game
         startGameSession();
@@ -137,18 +135,20 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
         lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
         signature: txid,
       });
+
       console.log(`SOL deposit successful: ${txid}`)
 
       // it accept three args: signature, isPaid, transactionId,roomId
-      console.log({ txid, isPaid: true, opponent })
       socket.emit('updatePayment', txid, true, opponent?.transactionId, opponent?.roomId);
-      console.log('payment updated successfully')
+      console.log('payment sent successfully')
     } catch (err) {
       console.log(`Unable to confirm transaction: ${err}`)
     }
   }, [publicKey, sendTransaction, connection, opponent])
 
-  const transferSOLToWinner = useCallback(async (amount: number) => {
+  // winner will get the bet amount and if the game is ended on a draw then both player will get the entree fee back to their wallet
+
+  const transferSOLToPlayer = useCallback(async (amount: number) => {
     if (!publicKey) {
       throw new WalletNotConnectedError()
     }
@@ -185,16 +185,16 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
         lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
         signature: txid,
       });
-      console.log(`SOL deposit successful: ${txid}`)
 
+      console.log(`SOL deposit successful: ${txid}`)
       // it accept three args: signature, isPaid, transactionId,roomId
-      console.log({ txid, isPaid: true, opponent })
       socket.emit('updatePayment', txid, true, opponent?.transactionId, opponent?.roomId);
       console.log('payment updated successfully')
     } catch (err) {
       console.log(`Unable to confirm transaction: ${err}`)
     }
   }, [publicKey, sendTransaction, connection, opponent])
+
   return (
     <div className="top-[50%] h-[300px] w-[500px] bg-primaryBlack shadow-lg rounded-2xl flex-col  items-center">
       <div className="flex flex-col w-full justify-center items-center h-full">
@@ -227,7 +227,7 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
         <div className="my-6">
           {
             opponent !== null ? (
-              <button onClick={makePayment} className="bg-primary text-black py-2 px-6 rounded-full font-bold">Pay {amount}: SQL</button>
+              <button disabled={transactions?.myTransaction} onClick={makePayment} className="bg-primary text-black py-2 px-6 rounded-full font-bold disabled:cursor-not-allowed disabled:bg-border">Pay {amount}: SQL</button>
             ) : <div>Searching for the opponent!</div>
           }
         </div>
@@ -261,7 +261,7 @@ const SearchOpponent: React.FC<ISearchOpponent> = ({
     if (gotOpponent.current === false) {
       let id = null;
       socket.on("gotOpponent", (data: SocketData, roomId: string, transactionId: string) => {
-        console.log({ data, roomId });
+        console.log({ myTransactionId: transactionId })
         id = roomId;
         setOpponent({ ...data, roomId, transactionId });
         socket.emit('joinCustomRoom', id);
