@@ -7,6 +7,7 @@ import { board } from '../board-generator';
 import { session } from '../game';
 import './game-form.scss'
 import { SearchOpponent } from '../../common';
+import GameWinner from '../../common/GameWinner/GameWinner';
 
 export interface IState {
     amount: number;
@@ -19,6 +20,7 @@ export interface IState {
 export class game_form extends Component<{}, IState> {
     static interval: any;
     static self: typeof game_form = this;
+    static gameProps: any = null;
 
     constructor(props: any) {
         super(props);
@@ -29,11 +31,13 @@ export class game_form extends Component<{}, IState> {
             time: 180, // 180 seconds - 3min
             show: false,
         };
+        game_form.gameProps = this.props;
 
         this.GetInputAmount = this.GetInputAmount.bind(this);
         this.onChangeValue = this.onChangeValue.bind(this);
         this.Submit = this.Submit.bind(this);
     }
+
 
 
     GetInputAmount(event: any) {
@@ -83,7 +87,6 @@ export class game_form extends Component<{}, IState> {
         if (this.state.amount > 100) {
             return;
         }
-        console.log(self)
         if (!board.isActive) {
             self.startGameSession();
             // @ts-ignore
@@ -91,6 +94,8 @@ export class game_form extends Component<{}, IState> {
             session.StartSession(self);
             return;
         }
+        //@ts-ignore
+        this.props.gameEnded();
         session.EndSession();
     }
 
@@ -106,7 +111,7 @@ export class game_form extends Component<{}, IState> {
     onChangeValue(event: any) {
         //@ts-ignore
         this.props.setDifficultyLevel(Number(event.target.value) < 5 ? Number(event.target.value) * 5 : Number(event.target.value))
-        this.setState((pState) => ({
+        this.setState(() => ({
             mode: event.target.value
         }))
     }
@@ -148,9 +153,6 @@ export class game_form extends Component<{}, IState> {
         let seconds = num - (minutes * 60);
         return `0${minutes}:${`${seconds}`.length === 1 ? `0${seconds}` : seconds}`
     }
-    componentDidMount() {
-        console.log('game-form state: ', this.state)
-    }
 
     render() {
         return (
@@ -161,6 +163,7 @@ export class game_form extends Component<{}, IState> {
                         <SearchOpponent hidePopup={() => this.hidePopup()} startGame={() => this.startGame(this)} />
                     )
                 }
+                <GameWinner />
                 <div className="formBody min-w-[300px]">
                     <div id='form_container' className="form_container">
                         <div className="flex justify-between my-2">
@@ -214,7 +217,7 @@ export class game_form extends Component<{}, IState> {
                             <button disabled={board.isActive} onClick={this.Submit} id='start-cashout' className="bg-primary shadow-lg text-primaryBlack py-2 flex-1 cursor-pointer disabled:cursor-not-allowed disabled:bg-primaryBlack/40 disabled:text-primary">Start Game</button>
                         </div>
                         <div className="flex mt-4">
-                            <button onClick={this.leaveGameSession} id='start-cashout' className={`py-2 flex-1 cursor-pointer ${board.isActive ? 'bg-primary text-primaryBlack cursor-auto' : 'bg-black/40 text-primary cursor-not-allowed'}`}>Leave Game</button>
+                            <button onClick={this.leaveGameSession} className={`py-2 flex-1 cursor-pointer ${board.isActive ? 'bg-primary text-primaryBlack cursor-auto' : 'bg-black/40 text-primary cursor-not-allowed'}`}>Leave Game</button>
                         </div>
                     </div>
                 </div>
@@ -229,6 +232,7 @@ function mapStateToProps(state: any) {
         betAmount: state.game.betAmount,
         walletAddress: state.game.walletAddress,
         level: state.game.level,
+        socket: state.game.socket,
     }
 }
 

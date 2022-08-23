@@ -1,8 +1,10 @@
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { WalletNotConnectedError } from "@solana/wallet-adapter-base"
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { PublicKey, Transaction, SystemProgram } from '@solana/web3.js'
+import { useSelector } from "react-redux";
+import { PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL, Keypair, sendAndConfirmTransaction } from '@solana/web3.js'
+import * as bs58 from "bs58";
+import { setOpponentDetails } from "../../../redux/Game/GameAction";
 
 interface SocketData {
   amount: number;
@@ -43,6 +45,7 @@ interface ITransactions {
 }
 
 const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
+
   const [transactions, setTransactions] = useState<ITransactions>({
     myTransaction: false,
     opponentTransaction: false,
@@ -51,18 +54,12 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
   const { socket } = useSelector(state => state.game)
   const { publicKey, sendTransaction } = useWallet();
   const { connection } = useConnection();
-  console.log({ transactions, opponent })
 
   useEffect(() => {
     // @todo: fix duplicate keys
     socket.on(`paymentRecieved`, (id: any) => {
-      console.log(`///// payment recived`, id?.transactionId == opponent?.transactionId)
       if (id?.transactionId === opponent?.transactionId) {
         setTransactions((prevState) => {
-          console.warn({
-            ...prevState,
-            myTransaction: true,
-          })
           return {
             ...prevState,
             myTransaction: true,
@@ -70,11 +67,6 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
         })
       } else {
         setTransactions((prevState) => {
-          console.warn({
-            ...prevState,
-            opponentTransaction: true,
-          })
-
           return {
             ...prevState,
             opponentTransaction: true,
@@ -92,11 +84,12 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
       }
     })
   }, [])
+
+
   const makePayment = useCallback(async () => {
     if (!publicKey) {
       throw new WalletNotConnectedError()
     }
-
     let pubkey = new PublicKey(publicKey)
 
     const transaction = new Transaction().add(
@@ -105,7 +98,7 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
         //@todo - static publicKey to be replaced with program's publicKey
         toPubkey: new PublicKey("7JnSaY4vLdxtS6BzpZkpoYVphxbWQTW2a59r4TxSPScq"),
         // 1 SOL = 10**9 lamport
-        lamports: Number(amount) * 1000000000,
+        lamports: Number(amount) * LAMPORTS_PER_SOL,
       })
     )
 
@@ -146,45 +139,32 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
     }
   }, [publicKey, sendTransaction, connection, opponent])
 
-  // winner will get the bet amount and if the game is ended on a draw then both player will get the entree fee back to their wallet
+  // winner will get the bet amount and if the game is ended on a draw then both player will get the entree fee back to their wallet - this transaction will be trigger using the --@solana/web3.js-- library
 
   const transferSOLToPlayer = useCallback(async (amount: number) => {
+    const secret_key = Uint8Array.from([90, 143, 136, 13, 217, 246, 237, 97, 10, 238, 184, 54, 35, 18, 194, 249, 6, 249, 105, 59, 104, 123, 73, 61, 103, 192, 148, 227, 231, 253, 19, 80, 26, 3, 63, 102, 28, 109, 25, 31, 154, 128, 141, 3, 4, 150, 68, 236, 123, 127, 219, 48, 2, 167, 77, 3, 57, 153, 53, 127, 240, 198, 34, 195]);
+    const keypair = Keypair.fromSecretKey(secret_key)
+
     if (!publicKey) {
       throw new WalletNotConnectedError()
     }
-    let pubkey = new PublicKey(publicKey)
+
     const transaction = new Transaction().add(
       SystemProgram.transfer({
-        fromPubkey: new PublicKey("7JnSaY4vLdxtS6BzpZkpoYVphxbWQTW2a59r4TxSPScq"),
+        fromPubkey: keypair.publicKey,
         toPubkey: publicKey,
-        lamports: Number(amount) * 1000000000,
+        lamports: Number(amount) * LAMPORTS_PER_SOL,
       })
     )
-    transaction.feePayer = pubkey
+    transaction.feePayer = keypair.publicKey
     let { blockhash } = await connection.getLatestBlockhash()
     transaction.recentBlockhash = blockhash
-    let signed = ""
     try {
-      //@ts-ignore
-      signed = await window.solana.signTransaction(transaction)
-    } catch (err) {
-      console.log(`Error in sign transaction : ${err}`)
-    }
-    let txid = ""
-    try {
-      //@ts-ignore
-      txid = await connection.sendRawTransaction(signed.serialize())
-    } catch (ex) {
-      console.log(`Error sending transaction: ${ex}`)
-    }
-    try {
-      // await connection.confirmTransaction(txid)
-      const latestBlockHash = await connection.getLatestBlockhash();
-      await connection.confirmTransaction({
-        blockhash: blockhash,
-        lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
-        signature: txid,
-      });
+      const txid = await sendAndConfirmTransaction(
+        connection,
+        transaction,
+        [keypair]
+      );
 
       console.log(`SOL deposit successful: ${txid}`)
       // it accept three args: signature, isPaid, transactionId,roomId
@@ -198,11 +178,11 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
   return (
     <div className="top-[50%] h-[300px] w-[500px] bg-primaryBlack shadow-lg rounded-2xl flex-col  items-center">
       <div className="flex flex-col w-full justify-center items-center h-full">
-        {
+        {/* {
           transactions.opponentTransaction === false && (
             <div className="mb-4 text-center bg-primary px-2 text-black">Waithing for opponent to do the transaction!</div>
           )
-        }
+        } */}
         <div className="flex items-center justify-between w-[80%] mx-auto">
           <div className="w-28 h-28 rounded-full shadow-lg border-4 border-white">
             <img
@@ -227,8 +207,8 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
         <div className="my-6">
           {
             opponent !== null ? (
-              <button disabled={transactions?.myTransaction} onClick={makePayment} className="bg-primary text-black py-2 px-6 rounded-full font-bold disabled:cursor-not-allowed disabled:bg-border">Pay {amount}: SQL</button>
-            ) : <div>Searching for the opponent!</div>
+              <button disabled={transactions?.myTransaction} onClick={makePayment} className="bg-primary text-black py-2 px-6 rounded-full font-bold disabled:cursor-not-allowed disabled:bg-border">Pay {amount}: SOL</button>
+            ) : <button onClick={() => transferSOLToPlayer(0.5)} className="bg-primary text-black py-2 px-6 rounded-full font-bold disabled:cursor-not-allowed disabled:bg-border">Recieve {0.5}: SOL</button>
           }
         </div>
       </div>
@@ -243,7 +223,6 @@ const SearchOpponent: React.FC<ISearchOpponent> = ({
   const [opponent, setOpponent] = useState<Opponent | null>(null);
   //@ts-ignore
   const { walletAddress, socket, betAmount, level } = useSelector((state) => state.game);
-  console.log({ walletAddress, socket, betAmount, level });
   const availableForMatch = useRef(false);
   const gotOpponent = useRef(false);
   //@ts-ignore
@@ -261,9 +240,9 @@ const SearchOpponent: React.FC<ISearchOpponent> = ({
     if (gotOpponent.current === false) {
       let id = null;
       socket.on("gotOpponent", (data: SocketData, roomId: string, transactionId: string) => {
-        console.log({ myTransactionId: transactionId })
         id = roomId;
         setOpponent({ ...data, roomId, transactionId });
+        setOpponentDetails({ ...data, roomId, transactionId })
         socket.emit('joinCustomRoom', id);
       });
     }

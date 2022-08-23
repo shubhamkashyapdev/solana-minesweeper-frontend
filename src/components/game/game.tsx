@@ -6,7 +6,7 @@ import { board } from "./board-generator"
 import { BetBalance, CurBetBalance, MainBalance } from "./balance"
 import { game_form } from "./form/game-form"
 import { Round } from "./utils"
-import { updateScore } from "../../redux/Game/GameAction"
+import { gameEnded, updateScore } from "../../redux/Game/GameAction"
 import { connect } from "react-redux"
 
 export var app: PIXI.Application
@@ -67,7 +67,7 @@ export class Game extends React.Component {
       let card_slot: CardSlot = board.slots[i]
       card_slot.sprite = card
 
-      card.on("pointerdown", this.CardInteraction.bind({ card_slot, state }))
+      card.on("pointerdown", this.CardInteraction.bind({ card_slot, state, props: state.props }))
       card.anchor.set(0.5)
       card.x = (i % 5) * 270
       card.y = Math.floor(i / 5) * 270
@@ -92,6 +92,7 @@ export class Game extends React.Component {
     if (slot.card.worth && slot.isHidden) {
       props.updateScore(sum.toFixed(1))
     }
+    console.log({ slot })
     // props.updateScore(slot.card.worth)
     if (board.isActive && slot.isHidden) {
       // @ts-ignore
@@ -137,7 +138,6 @@ class Session {
   }
 
   KillSession() {
-
     //MainBalance.Deposit(CurBetBalance.GetValue());
     CurBetBalance.Set(0)
     this.gForm.ActivateForm(true)
@@ -180,5 +180,6 @@ function mapStateToProps(state: any) {
 }
 const mapDispatchToProps = {
   updateScore: updateScore,
+  gameEnded: gameEnded,
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Game)

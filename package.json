@@ -39,6 +39,7 @@
     "url": "^0.11.0"
   },
   "devDependencies": {
+    "@types/bs58": "^4.0.1",
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
     "@vitejs/plugin-react": "^2.0.0",

@@ -47,3 +47,20 @@ export const setSocketIO = (socket: any) => (dispatch, getState) => {
     payload: socket,
   })
 }
+interface Opponent {
+  amount: number;
+  level: number;
+  socketId: string;
+  userId: string;
+  _id: string;
+  _v?: number;
+  roomId: string;
+  transactionId: string;
+}
+// @ts-ignore
+export const gameEnded = () => (dispatch, getState) => {
+  // @ts-ignore
+  const { socket, opponent, score } = getState(state => state.game)
+  const opponentPlayer: Opponent = opponent;
+  socket.emit('updateScore', opponentPlayer.roomId, opponentPlayer.transactionId, score)
+}
