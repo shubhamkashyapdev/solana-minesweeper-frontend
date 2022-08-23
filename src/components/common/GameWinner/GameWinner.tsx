@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { gameEnded } from '../../../redux/Game/GameAction'
 interface Opponent {
     amount: number;
     level: number;
@@ -10,15 +11,13 @@ interface Opponent {
     roomId: string;
     transactionId: string;
 }
-export const endTheFcukingGame = () => (props: any) => {
-    console.log(props);
-    // const { socket, opponent, score } = props;
-    // socket.emit('updateScore', opponent.roomId, opponent.transactionId, score)
-}
+
+let fn = null;
+
 const GameWinner = () => {
     //@ts-ignore
     const { socket } = useSelector(state => state.game)
-
+    const dispatch = useDispatch();
     useEffect(() => {
         if (socket) {
             socket.on('winner', (walletAddress: string) => {
@@ -28,5 +27,4 @@ const GameWinner = () => {
     }, [socket])
     return null
 }
-
 export default GameWinner

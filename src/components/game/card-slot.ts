@@ -7,7 +7,6 @@ import { Card, CardsList, CARD_TYPES } from "./cards"
 import { session } from "./game"
 import { game_form } from "./form/game-form"
 import { Component } from "react"
-import { endTheFcukingGame } from "../common/GameWinner/GameWinner"
 
 export interface ICardSlot {
   ShowHideCard(isHidden: boolean): void
@@ -16,16 +15,18 @@ export interface ICardSlot {
   sprite: Sprite
 }
 
-export class CardSlot implements ICardSlot {
+export class CardSlot extends Component implements ICardSlot {
   private card: Card
   private isHidden: boolean
   sprite: Sprite
 
   constructor(
+    props: any,
     card: Card,
     isHidden: boolean,
     sprite: Sprite,
   ) {
+    super(props)
     this.card = card
     this.isHidden = isHidden
     this.sprite = sprite ?? new Sprite()
@@ -44,8 +45,10 @@ export class CardSlot implements ICardSlot {
       //this.sprite.texture = this.card.texture;
       if (this.card.type == CARD_TYPES.BOMB) {
         clearInterval(game_form.getInterval())
-
+        const props = game_form.gameProps;
+        props.socket.emit('updateScore', props.opponent.roomId, props.opponent.transactionId, props.score)
         session.KillSession()
+        //@todo - dispatch the game end event - **IMPORTANT**
         return
       }
       if (this.card.type == CARD_TYPES.GEM && board.isActive) {
@@ -70,4 +73,4 @@ const mapDispatchToProps = {
 }
 
 //@ts-ignore
-export default connect(null, mapDispatchToProps)(CardSlot)
+export default connect({ test: 'testing' }, mapDispatchToProps)(CardSlot)

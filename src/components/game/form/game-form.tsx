@@ -31,8 +31,6 @@ export class game_form extends Component<{}, IState> {
             time: 180, // 180 seconds - 3min
             show: false,
         };
-        game_form.gameProps = this.props;
-
         this.GetInputAmount = this.GetInputAmount.bind(this);
         this.onChangeValue = this.onChangeValue.bind(this);
         this.Submit = this.Submit.bind(this);
@@ -45,6 +43,11 @@ export class game_form extends Component<{}, IState> {
             amount: BetBalance.Set(MainBalance.CheckIfBalance(event.target.value)),
             mode: pState.mode
         }))
+    }
+
+    componentDidUpdate() {
+        //@ts-ignore
+        game_form.gameProps = this.props
     }
 
     Submit() {
@@ -66,6 +69,7 @@ export class game_form extends Component<{}, IState> {
 
         //@todo - search for opponent to play with - (Match)
         this.setState({ show: true })
+
         //@todo - initiate the solana transaction
         //@todo - start the game session
     }
@@ -233,6 +237,7 @@ function mapStateToProps(state: any) {
         walletAddress: state.game.walletAddress,
         level: state.game.level,
         socket: state.game.socket,
+        opponent: state.game.opponent,
     }
 }
 

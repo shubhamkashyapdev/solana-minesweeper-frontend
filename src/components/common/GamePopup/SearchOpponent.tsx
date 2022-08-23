@@ -1,7 +1,7 @@
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { WalletNotConnectedError } from "@solana/wallet-adapter-base"
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL, Keypair, sendAndConfirmTransaction } from '@solana/web3.js'
 import * as bs58 from "bs58";
 import { setOpponentDetails } from "../../../redux/Game/GameAction";
@@ -51,9 +51,10 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
     opponentTransaction: false,
   })
   //@ts-ignore
-  const { socket } = useSelector(state => state.game)
+  const { socket, opponent: MyOpponent } = useSelector(state => state.game)
   const { publicKey, sendTransaction } = useWallet();
   const { connection } = useConnection();
+  console.log({ MyOpponent })
 
   useEffect(() => {
     // @todo: fix duplicate keys
@@ -220,6 +221,7 @@ const SearchOpponent: React.FC<ISearchOpponent> = ({
   hidePopup,
   startGame,
 }) => {
+  const dispatch = useDispatch();
   const [opponent, setOpponent] = useState<Opponent | null>(null);
   //@ts-ignore
   const { walletAddress, socket, betAmount, level } = useSelector((state) => state.game);
@@ -242,7 +244,8 @@ const SearchOpponent: React.FC<ISearchOpponent> = ({
       socket.on("gotOpponent", (data: SocketData, roomId: string, transactionId: string) => {
         id = roomId;
         setOpponent({ ...data, roomId, transactionId });
-        setOpponentDetails({ ...data, roomId, transactionId })
+        //@ts-ignore
+        dispatch(setOpponentDetails({ ...data, roomId, transactionId }))
         socket.emit('joinCustomRoom', id);
       });
     }
