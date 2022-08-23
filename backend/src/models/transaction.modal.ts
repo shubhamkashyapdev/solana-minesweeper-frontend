@@ -1,13 +1,13 @@
 import { Schema, model } from "mongoose";
 
-interface Transction {
+interface transaction {
   walletId: string;
   amount: number;
   signature: string;
   status: Boolean;
 }
 
-const transctionSchema = new Schema<Transction>(
+const transactionSchema = new Schema<transaction>(
   {
     walletId: {
       type: String,
@@ -29,7 +29,7 @@ const transctionSchema = new Schema<Transction>(
   { timestamps: true }
 );
 
-export const transctionModal = model<Transction>(
-  "Transctions",
-  transctionSchema
+export const transactionModal = model<transaction>(
+  "transactions",
+  transactionSchema
 );

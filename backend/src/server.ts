@@ -9,8 +9,9 @@ import fileupload from "express-fileupload";
 import { v4 as uuidv4 } from "uuid";
 
 import userRotes from "./routes/user.registration.route";
-import gameRoutes from "./routes/game.route";
 import searchOpponent from "./routes/searchOpponent.route";
+import gameRecodsRoutes from "./routes/gameRecords.route";
+
 import { availableUserModel } from "./models/AvailableForMatching.modal";
 import { userModal } from "./models/user.models";
 import {
@@ -18,10 +19,10 @@ import {
   removeUser,
 } from "./controllers/online.users.controller";
 import onlineUsersRoute from "./routes/OnlineUsers.route";
-import { addGame } from "./controllers/game.controller";
+// import { addGame } from "./controllers/game.controller";
 import {
-  addTrasction,
-  updateTransction,
+  addTransaction,
+  updateTransaction,
 } from "./controllers/transctions.controller";
 import { gameRecordsModal } from "./models/gameRecords.modal";
 
@@ -35,9 +36,9 @@ app.use(morgan("dev"));
 app.use(bodyParser.json());
 
 app.use("/", userRotes);
-app.use("/", gameRoutes);
 app.use("/", searchOpponent);
 app.use("/", onlineUsersRoute);
+app.use("/", gameRecodsRoutes);
 
 connectToDB();
 
@@ -74,39 +75,92 @@ socketIo.on("connection", async (socket: any) => {
   socket.emit("message", `connected with id ${socket.id}`);
 
   socket.on("message", (msg: any) => {
+    // channel for messaging
     console.log({ msg });
   });
 
   socket.on("disconnect", () => {
+    // when a user disconnects
     console.log("ueser Disconnected with id ", socket.id);
     removeUser(socket.id);
   });
 
   socket.on("msgToCustomRoom", (msg: string, roomId: string) => {
-    socketIo.to(roomId).emit("message", msg);
+    socketIo.to(roomId).emit("message", msg); // tramsmit msg to opponent after matching
   });
 
   socket.on(
-    "updatePayment",
+    "updatePayment", /// update payment status after payment
     async (signature: string, isPaid: boolean, id: string, gameId: string) => {
-      await updateTransction(id, signature, isPaid);
+      await updateTransaction(id, signature, isPaid);
 
-      socketIo.to(gameId).emit("paymentRecieved", { transctionId: id });
+      socketIo.to(gameId).emit("paymentRecieved", { transactionId: id });
 
       const payment = await isPayment(gameId);
       if (payment) {
-        socketIo.to(gameId).emit("startGame", { startGame: true });
+        socketIo.to(gameId).emit("startGame", { startGame: true }); // start game after both player have done payment
       }
     }
   );
 
+  socket.on(
+    "updateScore",
+    async (roomId: string, transactionId: string, score: number) => {
+      const isGame: any = await gameRecordsModal
+        .findOne({ gameId: roomId })
+        .populate("user1")
+        .populate("user2");
+
+      if (isGame.user1._id == transactionId) {
+        // update score in doc
+        isGame.score = { ...isGame.score, p1: score };
+        console.log("updatig score of Player 1 with Id ", transactionId);
+        console.log({ isGame });
+      } else if (isGame.user2._id == transactionId) {
+        console.log("updatig score of Player 2 with Id ", transactionId);
+        // update score in doc
+        isGame.score = { ...isGame.score, p2: score };
+
+        console.log({ isGame });
+      }
+
+      const { p1, p2 } = isGame.score;
+
+      console.log(p1, p2);
+
+      console.log({
+        condition: p1 > -1 && p2 > -1,
+      });
+      if (p1 > -1 && p2 > -1) {
+        isGame.status = true;
+
+        // check winner and notify players
+        let winner: Array<any> = [];
+        if (isGame.score.p1 > isGame.score.p2) {
+          isGame.winner = isGame.user1._id;
+          winner.push(isGame.user1.walletId);
+        } else if (isGame.score.p1 < isGame.score.p2) {
+          isGame.winner = isGame.user2._id;
+          winner.push(isGame.user2.walletId);
+        } else {
+          winner = [isGame.user1, isGame.user2];
+          console.log("tie");
+        }
+        console.log({ winner });
+        socketIo.to(roomId).emit("winner", winner);
+      }
+      await isGame.save();
+    }
+  );
+
   socket.on("joinCustomRoom", (roomId: string) => {
-    // join Custome Room
+    // join room after getting opponent
     socket.join(roomId);
     socket.emit("message", "joined Room");
   });
 
   socket.on(
+    // player available for match
     "availableForMatch",
     async (walletId: any, amount: any, level: any) => {
       console.log("Player Available for Match", walletId);
@@ -150,6 +204,7 @@ function sleep(time: number, func?: () => void) {
 }
 
 async function startMatching(socket: any, data: any) {
+  //  find match
   try {
     console.log("starting Search");
     let isOpponent = false;
@@ -178,14 +233,14 @@ async function startMatching(socket: any, data: any) {
         });
         await availableUserModel.findOneAndRemove({ userId: data.userId });
 
-        const p1Id = await addTrasction(
+        const p1Id = await addTransaction(
           data.amount,
           data.walletId,
           "false",
           false
         );
 
-        const p2Id = await addTrasction(
+        const p2Id = await addTransaction(
           opponent.amount,
           opponent.walletId,
           "false",
@@ -201,8 +256,11 @@ async function startMatching(socket: any, data: any) {
         await newGame.save();
 
         console.log({ opponent, notifiying: "opponent" });
-        socket.to(opponent.socketId).emit("gotOpponent", data, roomid, p1Id);
-        socket.emit("gotOpponent", opponent, roomid, p2Id);
+        socket.to(opponent.socketId).emit("gotOpponent", data, roomid, p2Id);
+        socket.emit("gotOpponent", opponent, roomid, p1Id);
+
+        console.log({ p1Id });
+        console.log({ p2Id });
 
         isOpponent = true;
       } else {
@@ -218,14 +276,17 @@ async function startMatching(socket: any, data: any) {
 }
 
 async function isPayment(gameId: string) {
+  // verify payment and start game
   return new Promise(async (resolve) => {
     const game = await gameRecordsModal
       .findOne({ gameId: gameId })
       .populate("user1")
       .populate("user2");
     if (game) {
-      console.log(game);
-      if (game.user1.status && game.user1.status) {
+      console.log({ UpdatingGame: game });
+      console.log({ statusp1: game.user1.status });
+      console.log({ statusp2: game.user2.status });
+      if (game.user1.status && game.user2.status) {
         resolve(true);
       } else {
         resolve(false);

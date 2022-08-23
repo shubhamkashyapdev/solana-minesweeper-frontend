@@ -1,4 +1,4 @@
-import React from "react";
+ccimport React from "react";
 import * as PIXI from "pixi.js";
 import * as Cards from "./cards";
 import { CardSlot } from "./card-slot";
