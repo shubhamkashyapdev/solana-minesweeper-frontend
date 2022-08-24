@@ -46,9 +46,11 @@ export class CardSlot extends Component implements ICardSlot {
       if (this.card.type == CARD_TYPES.BOMB) {
         clearInterval(game_form.getInterval())
         const props = game_form.gameProps;
-        props.socket.emit('updateScore', props.opponent.roomId, props.opponent.transactionId, props.score)
+        if (!props.winner) {
+          console.log('game ended')
+          props.socket.emit('updateScore', props.opponent.roomId, props.opponent.transactionId, props.score)
+        }
         session.KillSession()
-        //@todo - dispatch the game end event - **IMPORTANT**
         return
       }
       if (this.card.type == CARD_TYPES.GEM && board.isActive) {
@@ -73,4 +75,4 @@ const mapDispatchToProps = {
 }
 
 //@ts-ignore
-export default connect({ test: 'testing' }, mapDispatchToProps)(CardSlot)
+export default connect(null, mapDispatchToProps)(CardSlot)

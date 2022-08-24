@@ -54,7 +54,6 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
   const { socket, opponent: MyOpponent } = useSelector(state => state.game)
   const { publicKey, sendTransaction } = useWallet();
   const { connection } = useConnection();
-  console.log({ MyOpponent })
 
   useEffect(() => {
     // @todo: fix duplicate keys
@@ -209,7 +208,7 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
           {
             opponent !== null ? (
               <button disabled={transactions?.myTransaction} onClick={makePayment} className="bg-primary text-black py-2 px-6 rounded-full font-bold disabled:cursor-not-allowed disabled:bg-border">Pay {amount}: SOL</button>
-            ) : <button onClick={() => transferSOLToPlayer(0.5)} className="bg-primary text-black py-2 px-6 rounded-full font-bold disabled:cursor-not-allowed disabled:bg-border">Recieve {0.5}: SOL</button>
+            ) : <button onClick={() => transferSOLToPlayer(0.05)} className="bg-primary text-black py-2 px-6 rounded-full font-bold disabled:cursor-not-allowed disabled:bg-border">Recieve {0.05}: SOL</button>
           }
         </div>
       </div>
@@ -221,14 +220,14 @@ const SearchOpponent: React.FC<ISearchOpponent> = ({
   hidePopup,
   startGame,
 }) => {
+
   const dispatch = useDispatch();
   const [opponent, setOpponent] = useState<Opponent | null>(null);
+
   //@ts-ignore
   const { walletAddress, socket, betAmount, level } = useSelector((state) => state.game);
   const availableForMatch = useRef(false);
   const gotOpponent = useRef(false);
-  //@ts-ignore
-  const score = useSelector((state) => state.game.score);
   useEffect(() => {
     if (availableForMatch.current === false) {
       socket.emit("availableForMatch", walletAddress, betAmount, level);

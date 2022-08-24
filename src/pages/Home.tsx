@@ -4,11 +4,8 @@ import { GameCards, HomeInfoBox } from "../components/common";
 //redux
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux/store";
-import Footer from "../components/layout/Footer";
 const Home = () => {
   const { game } = useSelector((state: RootState) => state);
-  console.log(game);
-  const dispatch = useDispatch();
   return (
     <div className="container pb-10">
       <h1 className="page__title">Currently Trending Games</h1>
