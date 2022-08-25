@@ -61,16 +61,16 @@ const GameWinner = () => {
 
 
     useEffect(() => {
-        console.log({ winnerArr })
         if (winnerArr.length == 1) {
-            if (winnerArr[0]) {
+            if (winnerArr[0] && publicKey?.toString() === winnerArr[0]) {
                 transferSOLToPlayer(Number(betAmount) * 2, new PublicKey(winnerArr[0]))
             }
         }
         if (winnerArr.length == 2) {
             winnerArr.map(item => {
                 if (item) {
-                    transferSOLToPlayer(betAmount, new PublicKey(item[0]))
+                    //@ts-ignore
+                    transferSOLToPlayer(betAmount, new PublicKey(item.walletId[0]))
                 }
             });
         }
@@ -83,7 +83,9 @@ const GameWinner = () => {
     useEffect(() => {
         if (socket) {
             socket.on('winner', (walletAddress: string[]) => {
+
                 if (!ran && winnerArr.join() !== walletAddress.join()) {
+                    console.log({ walletAddress })
                     ran = true
                     handleWinnerArr(walletAddress)
                 }
