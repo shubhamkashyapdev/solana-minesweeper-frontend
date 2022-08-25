@@ -51,8 +51,6 @@ const GameWinner = () => {
             );
 
             console.log(`SOL deposit successful: ${txid}`)
-            // it accept three args: signature, isPaid, transactionId,roomId
-            socket.emit('updatePayment', txid, true, opponent?.transactionId, opponent?.roomId);
             console.log('payment updated successfully')
         } catch (err) {
             console.log(`Unable to confirm transaction: ${err}`)
@@ -67,10 +65,10 @@ const GameWinner = () => {
             }
         }
         if (winnerArr.length == 2) {
-            winnerArr.map(item => {
+            winnerArr.forEach(item => {
                 if (item) {
                     //@ts-ignore
-                    transferSOLToPlayer(betAmount, new PublicKey(item.walletId[0]))
+                    transferSOLToPlayer(betAmount, new PublicKey(item))
                 }
             });
         }
