@@ -12,6 +12,7 @@ import { board } from "../board-generator"
 import { session } from "../game"
 import "./game-form.scss"
 import { SearchOpponent } from "../../common"
+import GameWinner from "../../common/GameWinner/GameWinner"
 
 export interface IState {
     amount: number
@@ -50,20 +51,9 @@ export class game_form extends Component<{}, IState> {
     }
 
     componentDidUpdate() {
-        console.log({ winnersArr: this.state.winnerArr })
+        console.log(`game form re-render triggered`)
         //@ts-ignore
         game_form.gameProps = this.props
-        //@ts-ignore
-        const socket = this.props.socket
-        if (socket) {
-            socket.on('winner', (walletAddress: string[]) => {
-                console.log(`winner wallet address:`, walletAddress);
-                //@ts-ignore
-                if (winnerArr.join() !== walletAddress.join()) {
-                    // this.setState({ winnerArr: [...walletAddress] })
-                }
-            })
-        }
     }
 
     Submit() {
@@ -187,6 +177,7 @@ export class game_form extends Component<{}, IState> {
                         startGame={() => this.startGame(this)}
                     />
                 )}
+                <GameWinner />
                 <div className="formBody min-w-[300px]">
                     <div id="form_container" className="form_container">
                         <div className="flex justify-between my-2">

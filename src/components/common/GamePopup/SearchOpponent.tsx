@@ -3,7 +3,6 @@ import { WalletNotConnectedError } from "@solana/wallet-adapter-base"
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL, Keypair, sendAndConfirmTransaction } from '@solana/web3.js'
-import * as bs58 from "bs58";
 import { setOpponentDetails } from "../../../redux/Game/GameAction";
 
 interface SocketData {
@@ -141,39 +140,7 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
 
   // winner will get the bet amount and if the game is ended on a draw then both player will get the entree fee back to their wallet - this transaction will be trigger using the --@solana/web3.js-- library
 
-  const transferSOLToPlayer = useCallback(async (amount: number) => {
-    const secret_key = Uint8Array.from([90, 143, 136, 13, 217, 246, 237, 97, 10, 238, 184, 54, 35, 18, 194, 249, 6, 249, 105, 59, 104, 123, 73, 61, 103, 192, 148, 227, 231, 253, 19, 80, 26, 3, 63, 102, 28, 109, 25, 31, 154, 128, 141, 3, 4, 150, 68, 236, 123, 127, 219, 48, 2, 167, 77, 3, 57, 153, 53, 127, 240, 198, 34, 195]);
-    const keypair = Keypair.fromSecretKey(secret_key)
 
-    if (!publicKey) {
-      throw new WalletNotConnectedError()
-    }
-
-    const transaction = new Transaction().add(
-      SystemProgram.transfer({
-        fromPubkey: keypair.publicKey,
-        toPubkey: publicKey,
-        lamports: Number(amount) * LAMPORTS_PER_SOL,
-      })
-    )
-    transaction.feePayer = keypair.publicKey
-    let { blockhash } = await connection.getLatestBlockhash()
-    transaction.recentBlockhash = blockhash
-    try {
-      const txid = await sendAndConfirmTransaction(
-        connection,
-        transaction,
-        [keypair]
-      );
-
-      console.log(`SOL deposit successful: ${txid}`)
-      // it accept three args: signature, isPaid, transactionId,roomId
-      socket.emit('updatePayment', txid, true, opponent?.transactionId, opponent?.roomId);
-      console.log('payment updated successfully')
-    } catch (err) {
-      console.log(`Unable to confirm transaction: ${err}`)
-    }
-  }, [publicKey, sendTransaction, connection, opponent])
 
   return (
     <div className="top-[50%] h-[300px] w-[500px] bg-primaryBlack shadow-lg rounded-2xl flex-col  items-center">
@@ -208,7 +175,7 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
           {
             opponent !== null ? (
               <button disabled={transactions?.myTransaction} onClick={makePayment} className="bg-primary text-black py-2 px-6 rounded-full font-bold disabled:cursor-not-allowed disabled:bg-border">Pay {amount}: SOL</button>
-            ) : <button onClick={() => transferSOLToPlayer(0.05)} className="bg-primary text-black py-2 px-6 rounded-full font-bold disabled:cursor-not-allowed disabled:bg-border">Recieve {0.05}: SOL</button>
+            ) : <div>Searching for opponent!</div>
           }
         </div>
       </div>
