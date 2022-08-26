@@ -36,6 +36,7 @@
     "react-router-dom": "^6.3.0",
     "redux": "^4.2.0",
     "redux-thunk": "^2.4.1",
+    "rollup-plugin-polyfill-node": "^0.10.2",
     "sass": "^1.54.3",
     "socket.io-client": "4.5.1",
     "swiper": "^8.3.2",
