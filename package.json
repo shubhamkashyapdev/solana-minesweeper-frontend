@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@emotion/react": "^11.10.0",
+    "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
     "@iconify/react": "^3.2.2",
     "@mantine/core": "^5.0.2",
     "@mantine/form": "^5.0.2",
