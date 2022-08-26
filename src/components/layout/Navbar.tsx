@@ -19,7 +19,7 @@ const Navbar = () => {
   useEffect(() => {
     let connection: any;
     if (walletAddress && !socket) {
-      connection = io("http://192.168.1.211:5000", {
+      connection = io("http://192.168.18.241:5000", {
         auth: { walletId: walletAddress }
       })
       // @ts-ignore

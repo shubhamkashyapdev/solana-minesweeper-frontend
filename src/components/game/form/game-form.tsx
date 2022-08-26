@@ -13,6 +13,7 @@ import { session } from "../game"
 import "./game-form.scss"
 import { SearchOpponent } from "../../common"
 import GameWinner from "../../common/GameWinner/GameWinner"
+import { showNotification } from "@mantine/notifications"
 
 export interface IState {
     amount: number
@@ -72,12 +73,18 @@ export class game_form extends Component<{}, IState> {
 
         //@ts-ignore
         this.props.setBetAmount(Number(this.state.amount))
-
-        //@todo - search for opponent to play with - (Match)
         this.setState({ show: true })
-
-        //@todo - initiate the solana transaction
-        //@todo - start the game session
+        showNotification({
+            title: 'Searching for opponent',
+            message: 'Game will be starting.. ',
+            loading: true,
+            styles: (theme) => ({
+                root: { backgroundColor: theme.colors.dark[9] },
+                borderColor: theme.colors.gray[8],
+                '&::before': { backgroundColor: theme.white },
+                title: { color: theme.white }
+            })
+        })
     }
 
     hidePopup() {
@@ -110,11 +117,6 @@ export class game_form extends Component<{}, IState> {
 
     leaveGameSession() {
         session.EndSession()
-    }
-
-    leaveGame() {
-        // @todo - destory the user session - socket room
-        // @todo - end the game - player b will be the winner
     }
 
     onChangeValue(event: any) {

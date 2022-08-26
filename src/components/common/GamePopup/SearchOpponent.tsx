@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL, Keypair, sendAndConfirmTransaction } from '@solana/web3.js'
 import { setOpponentDetails } from "../../../redux/Game/GameAction";
+import { showNotification } from "@mantine/notifications";
 
 interface SocketData {
   amount: number;
@@ -55,7 +56,6 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
   const { connection } = useConnection();
 
   useEffect(() => {
-    // @todo: fix duplicate keys
     socket.on(`paymentRecieved`, (id: any) => {
       if (id?.transactionId === opponent?.transactionId) {
         setTransactions((prevState) => {
@@ -77,8 +77,6 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
   useEffect(() => {
     socket.on(`startGame`, (game: IStartGame) => {
       if (game.startGame) {
-        //@todo - save in database
-        //@todo - start the game
         startGameSession();
       }
     })
@@ -96,7 +94,6 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
         fromPubkey: publicKey,
         //@todo - static publicKey to be replaced with program's publicKey
         toPubkey: new PublicKey("7JnSaY4vLdxtS6BzpZkpoYVphxbWQTW2a59r4TxSPScq"),
-        // 1 SOL = 10**9 lamport
         lamports: Number(amount) * LAMPORTS_PER_SOL,
       })
     )
@@ -132,8 +129,32 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
 
       // it accept three args: signature, isPaid, transactionId,roomId
       socket.emit('updatePayment', txid, true, opponent?.transactionId, opponent?.roomId);
-      console.log('payment sent successfully')
+      showNotification({
+        title: 'Payment Successfull',
+        message: 'Game is started',
+        styles: (theme) => ({
+          root: {
+            backgroundColor: theme.colors.dark[9],
+            borderColor: theme.colors.gary[2]
+          },
+          title: { color: theme.colors.gray[6] },
+          description: { color: theme.colors.gray[5] }
+        })
+      })
+
     } catch (err) {
+      showNotification({
+        title: 'Payment Failed :x:',
+        message: ' Unable to start game! Please try again!',
+        styles: (theme) => ({
+          root: {
+            backgroundColor: theme.colors.dark[9],
+            borderColor: theme.colors.gray[6]
+          },
+          title: { color: theme.white },
+          description: { color: theme.colors.gray[5] }
+        })
+      })
       console.log(`Unable to confirm transaction: ${err}`)
     }
   }, [publicKey, sendTransaction, connection, opponent])

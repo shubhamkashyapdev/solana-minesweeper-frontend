@@ -3,6 +3,7 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { WalletNotConnectedError } from "@solana/wallet-adapter-base"
 import { useDispatch, useSelector } from 'react-redux'
 import { PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL, Keypair, sendAndConfirmTransaction } from '@solana/web3.js'
+import { showNotification } from '@mantine/notifications';
 interface Opponent {
     amount: number;
     level: number;
@@ -49,9 +50,21 @@ const GameWinner = () => {
                 transaction,
                 [keypair]
             );
-
-            console.log(`SOL deposit successful: ${txid}`)
+            console.log(`SOL recieved successful: ${txid}`)
             console.log('payment updated successfully')
+            showNotification({
+                title: 'Congrats you win the game!',
+                message: 'Reward sent to your account',
+                autoClose: 2000,
+                styles: (theme) => ({
+                    root: {
+                        backgroundColor: theme.colors.dark[8],
+                        '&::before': { backgroundColor: theme.colors.gray[4] },
+                    },
+                    title: { color: theme.white },
+                    description: { color: theme.colors.gray[5] }
+                })
+            })
         } catch (err) {
             console.log(`Unable to confirm transaction: ${err}`)
         }
@@ -65,8 +78,19 @@ const GameWinner = () => {
             }
         }
         if (winnerArr.length == 2) {
+            showNotification({
+                title: 'Match draw!',
+                message: 'Sol will be refunded to your account',
+                autoClose: 2000,
+                styles: (theme) => ({
+                    root: {
+                        backgroundColor: theme.colors.dark[8],
+                        '&::before': { BackgroundColor: theme.white }
+                    }
+                })
+            })
             winnerArr.forEach(item => {
-                if (item) {
+                if (item && publicKey?.toString() === item) {
                     //@ts-ignore
                     transferSOLToPlayer(betAmount, new PublicKey(item))
                 }
