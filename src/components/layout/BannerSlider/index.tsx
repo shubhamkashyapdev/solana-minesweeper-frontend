@@ -22,8 +22,8 @@ const BannerSlider = ({ slides }) => {
         pagination={{ clickable: true }}
         onSwiper={(swiper) => { }}
       >
-        {slides.map((item: any) => (
-          <SwiperSlide>
+        {slides.map((item: any, index: number) => (
+          <SwiperSlide key={`banner-slide-${index}`}>
             <div className={` h-[350px] ${item.img} m-2 `}>
               <img
                 className="w-full h-full object-cover overflow-hidden rounded-3xl"

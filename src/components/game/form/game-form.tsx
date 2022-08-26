@@ -4,6 +4,7 @@ import {
   setBetAmount,
   setDifficultyLevel,
   updateScore,
+  updateWinner,
 } from "../../../redux/Game/GameAction";
 import { BetBalance, MainBalance } from "../balance";
 import { Select } from "@mantine/core";
@@ -11,6 +12,8 @@ import { board } from "../board-generator";
 import { session } from "../game";
 import "./game-form.scss";
 import { SearchOpponent } from "../../common";
+import GameWinner from "../../common/GameWinner/GameWinner";
+import { showNotification } from "@mantine/notifications";
 
 export interface IState {
   amount: number;
@@ -18,11 +21,13 @@ export interface IState {
   score: number;
   time: number;
   show: boolean;
+  winnerArr: string[];
 }
 
 export class game_form extends Component<{}, IState> {
   static interval: any;
   static self: typeof game_form = this;
+  static gameProps: any = null;
 
   constructor(props: any) {
     super(props);
@@ -32,8 +37,8 @@ export class game_form extends Component<{}, IState> {
       score: 0,
       time: 180, // 180 seconds - 3min
       show: false,
+      winnerArr: [],
     };
-
     this.GetInputAmount = this.GetInputAmount.bind(this);
     this.onChangeValue = this.onChangeValue.bind(this);
     this.Submit = this.Submit.bind(this);
@@ -44,6 +49,12 @@ export class game_form extends Component<{}, IState> {
       amount: BetBalance.Set(MainBalance.CheckIfBalance(event.target.value)),
       mode: pState.mode,
     }));
+  }
+
+  componentDidUpdate() {
+    console.log(`game form re-render triggered`);
+    //@ts-ignore
+    game_form.gameProps = this.props;
   }
 
   Submit() {
@@ -62,15 +73,21 @@ export class game_form extends Component<{}, IState> {
 
     //@ts-ignore
     this.props.setBetAmount(Number(this.state.amount));
-
-    //@todo - search for opponent to play with - (Match)
     this.setState({ show: true });
-    //@todo - initiate the solana transaction
-    //@todo - start the game session
+    showNotification({
+      title: "Searching for opponent",
+      message: "Game will be starting.. ",
+      loading: true,
+      styles: (theme) => ({
+        root: { backgroundColor: theme.colors.dark[9] },
+        borderColor: theme.colors.gray[8],
+        "&::before": { backgroundColor: theme.white },
+        title: { color: theme.white },
+      }),
+    });
   }
 
   hidePopup() {
-    console.log(`hide the popup true:`, this.state.show);
     this.setState({ show: false });
   }
 
@@ -86,7 +103,6 @@ export class game_form extends Component<{}, IState> {
     if (this.state.amount > 100) {
       return;
     }
-    console.log(self);
     if (!board.isActive) {
       self.startGameSession();
       // @ts-ignore
@@ -94,16 +110,13 @@ export class game_form extends Component<{}, IState> {
       session.StartSession(self);
       return;
     }
+    //@ts-ignore
+    this.props.gameEnded();
     session.EndSession();
   }
 
   leaveGameSession() {
     session.EndSession();
-  }
-
-  leaveGame() {
-    // @todo - destory the user session - socket room
-    // @todo - end the game - player b will be the winner
   }
 
   onChangeValue(event: any) {
@@ -113,7 +126,7 @@ export class game_form extends Component<{}, IState> {
         ? Number(event.target.value) * 5
         : Number(event.target.value)
     );
-    this.setState((pState) => ({
+    this.setState(() => ({
       mode: event.target.value,
     }));
   }
@@ -155,9 +168,7 @@ export class game_form extends Component<{}, IState> {
     let seconds = num - minutes * 60;
     return `0${minutes}:${`${seconds}`.length === 1 ? `0${seconds}` : seconds}`;
   }
-  componentDidMount() {
-    console.log("ye render ho rha hai kay?", this.state);
-  }
+
   render() {
     return (
       <>
@@ -168,6 +179,7 @@ export class game_form extends Component<{}, IState> {
             startGame={() => this.startGame(this)}
           />
         )}
+        <GameWinner />
         <div className="formBody min-w-[300px]">
           <div id="form_container" className="form_container">
             <div className="flex justify-between my-2">
@@ -248,7 +260,6 @@ export class game_form extends Component<{}, IState> {
             <div className="flex mt-4">
               <button
                 onClick={this.leaveGameSession}
-                id="start-cashout"
                 className={`py-2 flex-1 cursor-pointer ${
                   board.isActive
                     ? "bg-primary text-primaryBlack cursor-auto"
@@ -271,6 +282,9 @@ function mapStateToProps(state: any) {
     betAmount: state.game.betAmount,
     walletAddress: state.game.walletAddress,
     level: state.game.level,
+    socket: state.game.socket,
+    opponent: state.game.opponent,
+    winnerArr: state.game.winnerArr,
   };
 }
 
@@ -278,6 +292,7 @@ const mapDispatchToProps = {
   updateScore: updateScore,
   setBetAmount: setBetAmount,
   setDifficultyLevel: setDifficultyLevel,
+  updateWinner: updateWinner,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(game_form);

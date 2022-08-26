@@ -6,6 +6,7 @@ import { board } from "./board-generator"
 import { Card, CardsList, CARD_TYPES } from "./cards"
 import { session } from "./game"
 import { game_form } from "./form/game-form"
+import { Component } from "react"
 
 export interface ICardSlot {
   ShowHideCard(isHidden: boolean): void
@@ -14,21 +15,21 @@ export interface ICardSlot {
   sprite: Sprite
 }
 
-export class CardSlot implements ICardSlot {
+export class CardSlot extends Component implements ICardSlot {
   private card: Card
   private isHidden: boolean
   sprite: Sprite
 
   constructor(
+    props: any,
     card: Card,
     isHidden: boolean,
     sprite: Sprite,
-    private form: game_form
   ) {
+    super(props)
     this.card = card
     this.isHidden = isHidden
     this.sprite = sprite ?? new Sprite()
-    this.form = form
   }
 
   ShowHideCard(isHidden: boolean): void {
@@ -44,6 +45,11 @@ export class CardSlot implements ICardSlot {
       //this.sprite.texture = this.card.texture;
       if (this.card.type == CARD_TYPES.BOMB) {
         clearInterval(game_form.getInterval())
+        const props = game_form.gameProps;
+        if (!props.winner) {
+          console.log('game ended')
+          props.socket.emit('updateScore', props.opponent.roomId, props.opponent.transactionId, props.score)
+        }
         session.KillSession()
         return
       }
@@ -51,7 +57,6 @@ export class CardSlot implements ICardSlot {
         board.AddMultiplier(this.card)
         ShowMultiplierPopup(this)
       }
-
       return
     }
   }

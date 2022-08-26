@@ -1,4 +1,4 @@
-import { DIFFICULTY_LEVEL, OPPONENT_DETAILS, PALYER_WALLET_ADDRESS, PLAYER_BET_AMMOUNT, SOCKET_IO, UPDATE_SCORE } from "./GameTypes"
+import { DIFFICULTY_LEVEL, OPPONENT_DETAILS, PALYER_WALLET_ADDRESS, PLAYER_BET_AMMOUNT, SOCKET_IO, UPDATE_SCORE, UPDATE_WINNER } from "./GameTypes"
 
 // @ts-ignore
 export const setOpponentDetails = (opponent) => (dispatch, getState) => {
@@ -47,3 +47,27 @@ export const setSocketIO = (socket: any) => (dispatch, getState) => {
     payload: socket,
   })
 }
+interface Opponent {
+  amount: number;
+  level: number;
+  socketId: string;
+  userId: string;
+  _id: string;
+  _v?: number;
+  roomId: string;
+  transactionId: string;
+}
+// @ts-ignore
+export const gameEnded = () => (dispatch, getState) => {
+  // @ts-ignore
+  const { socket, opponent, score } = getState(state => state.game)
+  const opponentPlayer: Opponent = opponent;
+  socket.emit('updateScore', opponentPlayer.roomId, opponentPlayer.transactionId, score)
+}
+
+export const updateWinner = (walletAddress: string[]) => (dispatch: any, getState: any) => {
+  dispatch({
+    type: UPDATE_WINNER,
+    payload: walletAddress,
+  })
+} 

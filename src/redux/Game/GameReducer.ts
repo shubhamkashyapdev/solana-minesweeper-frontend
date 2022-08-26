@@ -1,4 +1,4 @@
-import { OPPONENT_DETAILS, UPDATE_SCORE, PLAYER_BET_AMMOUNT, PALYER_WALLET_ADDRESS, SOCKET_IO, DIFFICULTY_LEVEL } from "./GameTypes"
+import { OPPONENT_DETAILS, UPDATE_SCORE, PLAYER_BET_AMMOUNT, PALYER_WALLET_ADDRESS, SOCKET_IO, DIFFICULTY_LEVEL, UPDATE_WINNER } from "./GameTypes"
 
 interface Action {
   type: String
@@ -12,6 +12,7 @@ const initialState = {
   address: null,
   socket: null,
   level: 5,
+  winnerArr: [],
 }
 
 export const gameReducer = (state = initialState, action: Action) => {
@@ -46,6 +47,11 @@ export const gameReducer = (state = initialState, action: Action) => {
       return {
         ...state,
         level: payload,
+      }
+    case UPDATE_WINNER:
+      return {
+        ...state,
+        winnerArr: [...state.winnerArr, ...payload],
       }
     default:
       return state
