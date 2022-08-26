@@ -1,11 +1,12 @@
 import mongoose from "mongoose";
 import config from "config";
 
+const dbUrl: string = config.get("dbUrl");
+
 export const connectToDB = async () => {
   try {
-    await mongoose.connect(
-      "mongodb+srv://minesweeper:minesweeper@minesweeper.1iteczv.mongodb.net/minesweeper"
-    );
+    console.log(dbUrl);
+    await mongoose.connect(dbUrl);
     console.log("connected to mongodb");
   } catch (err) {
     console.log({ err });

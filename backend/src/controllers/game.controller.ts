@@ -12,7 +12,8 @@ export const getRecords = async (req: Request, res: Response) => {
     const result = await gameRecordsModal
       .find()
       .populate("user1")
-      .populate("user2");
+      .populate("user2")
+      .populate("winner");
 
     const filter = await result.filter((x) => {
       console.log({ x });

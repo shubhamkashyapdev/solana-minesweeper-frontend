@@ -23,7 +23,7 @@ const newSchema = new Schema<GameRecord>(
       },
     },
     status: { type: Boolean, required: false, default: false },
-    winner: { type: Schema.Types.ObjectId, ref: "Users" },
+    winner: [{ type: Schema.Types.ObjectId, ref: "Users" }],
   },
   { timestamps: true }
 );

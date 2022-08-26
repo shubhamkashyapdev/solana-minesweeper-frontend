@@ -1,6 +1,6 @@
 import express from "express";
 import config from "config";
-import { init } from "./sockets/socket";
+import { getUserBywalletId, init } from "./sockets/socket";
 import { connectToDB } from "./db/conectdb";
 import bodyParser from "body-parser";
 import morgan from "morgan";
@@ -19,7 +19,6 @@ import {
   removeUser,
 } from "./controllers/online.users.controller";
 import onlineUsersRoute from "./routes/OnlineUsers.route";
-// import { addGame } from "./controllers/game.controller";
 import {
   addTransaction,
   updateTransaction,
@@ -43,7 +42,7 @@ app.use("/", gameRecodsRoutes);
 connectToDB();
 
 const server = app.listen(PORT, () => {
-  console.log("Server is Running");
+  console.log("Server is Running : " + PORT);
 });
 
 const socketIo: any = init(server);
@@ -115,43 +114,46 @@ socketIo.on("connection", async (socket: any) => {
         // update score in doc
         isGame.score = { ...isGame.score, p1: score };
         console.log("updatig score of Player 1 with Id ", transactionId);
-        console.log({ isGame });
-      } else if (isGame.user2._id == transactionId) {
+        // console.log({ isGame });
+      }
+      if (isGame.user2._id == transactionId) {
         console.log("updatig score of Player 2 with Id ", transactionId);
         // update score in doc
         isGame.score = { ...isGame.score, p2: score };
-
-        console.log({ isGame });
       }
 
+      await isGame.save();
+
       const { p1, p2 } = isGame.score;
-
-      console.log(p1, p2);
-
-      console.log({
-        condition: p1 > -1 && p2 > -1,
-      });
       if (p1 > -1 && p2 > -1) {
         isGame.status = true;
-
         // check winner and notify players
         let winner: Array<any> = [];
         if (isGame.score.p1 > isGame.score.p2) {
-          isGame.winner = isGame.user1._id;
           winner.push(isGame.user1.walletId);
         } else if (isGame.score.p1 < isGame.score.p2) {
-          isGame.winner = isGame.user2._id;
           winner.push(isGame.user2.walletId);
         } else {
-          winner = [isGame.user1, isGame.user2];
+          winner = [isGame.user1.walletId, isGame.user2.walletId];
           console.log("tie");
         }
         console.log({ winner });
-        socketIo.to(roomId).emit("winner", winner);
+
+        getUserBywalletId(winner, async (result: Array<any>) => {
+          console.log({ result });
+          isGame.winner = result;
+          await isGame.save();
+          socketIo.to(roomId).emit("winner", winner);
+        });
       }
-      await isGame.save();
     }
   );
+
+  socket.on("leaveGame", (roomId: string) => {
+    // leave Room
+    socket.leave(roomId);
+    console.log(`\n\n\n\n\n user with roomId ${roomId} is ended`);
+  });
 
   socket.on("joinCustomRoom", (roomId: string) => {
     // join room after getting opponent
@@ -163,7 +165,7 @@ socketIo.on("connection", async (socket: any) => {
     // player available for match
     "availableForMatch",
     async (walletId: any, amount: any, level: any) => {
-      console.log("Player Available for Match", walletId);
+      console.log("\n\nPlayer Available for Match", walletId);
 
       const checkUser = await userModal.findOne({ wallet: walletId });
 
@@ -283,9 +285,9 @@ async function isPayment(gameId: string) {
       .populate("user1")
       .populate("user2");
     if (game) {
-      console.log({ UpdatingGame: game });
-      console.log({ statusp1: game.user1.status });
-      console.log({ statusp2: game.user2.status });
+      // console.log({ UpdatingGame: game });
+      // console.log({ statusp1: game.user1.status });
+      // console.log({ statusp2: game.user2.status });
       if (game.user1.status && game.user2.status) {
         resolve(true);
       } else {

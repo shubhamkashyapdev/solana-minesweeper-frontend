@@ -1,4 +1,4 @@
 {
     "PORT": 5000,
-    "dbUrl": "mongodb+srv: //minesweeper:minesweeper@minesweeper.1iteczv.mongodb.net/?retryWrites=true&w=majority"
+    "dbUrl": "mongodb+srv://minesweeper:minesweeper@minesweeper.1iteczv.mongodb.net/minesweeper"
 }
