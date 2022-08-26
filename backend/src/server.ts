@@ -34,6 +34,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(morgan("dev"));
 app.use(bodyParser.json());
 
+app.get('/', (req, res) => {
+  res.send(`API is working fine!`)
+})
+
 app.use("/", userRotes);
 app.use("/", searchOpponent);
 app.use("/", onlineUsersRoute);
