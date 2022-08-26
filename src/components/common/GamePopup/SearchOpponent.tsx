@@ -130,18 +130,18 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
       // it accept three args: signature, isPaid, transactionId,roomId
       socket.emit('updatePayment', txid, true, opponent?.transactionId, opponent?.roomId);
       showNotification({
-        title: 'Payment Successfull',
-        message: 'Game is started',
+        title: 'Payment Successfull!',
+        message: 'Game will be started!',
+        autoClose: 2000,
         styles: (theme) => ({
           root: {
-            backgroundColor: theme.colors.dark[9],
-            borderColor: theme.colors.gary[2]
+            backgroundColor: theme.colors.dark[8],
+            '&::before': { backgroundColor: theme.colors.gray[4] },
           },
-          title: { color: theme.colors.gray[6] },
+          title: { color: theme.colors.gray[4] },
           description: { color: theme.colors.gray[5] }
         })
       })
-
     } catch (err) {
       showNotification({
         title: 'Payment Failed :x:',
