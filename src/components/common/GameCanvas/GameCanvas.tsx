@@ -5,8 +5,8 @@ import './GameCanvas.scss'
 
 const GameCanvas = () => {
     return (
-        <div className="content">
-            <div className="gameBorder">
+        <div className="content ">
+            <div className="gameBorder ">
                 <div className="Game">
                     <Game />
                     <GameForm />

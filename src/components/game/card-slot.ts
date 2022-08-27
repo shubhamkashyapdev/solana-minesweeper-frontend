@@ -7,7 +7,7 @@ import { Card, CardsList, CARD_TYPES } from "./cards"
 import { session } from "./game"
 import { game_form } from "./form/game-form"
 import { Component } from "react"
-
+import { showNotification } from "@mantine/notifications"
 export interface ICardSlot {
   ShowHideCard(isHidden: boolean): void
   ChangeCard(card: Card): void
@@ -47,9 +47,24 @@ export class CardSlot extends Component implements ICardSlot {
         clearInterval(game_form.getInterval())
         const props = game_form.gameProps;
         if (!props.winner) {
+          showNotification({
+            title: 'Game Ended!',
+            message: 'Waiting for opponent!',
+            autoClose: 3000,
+            styles: (theme) => ({
+                root: {
+                    backgroundColor: theme.colors.dark[8],
+                    '&::before': { backgroundColor: theme.colors.gray[4] },
+                },
+                title: { color: theme.colors.gray[4] },
+                description: { color: theme.colors.gray[5] }
+            })
+        })
           console.log('game ended')
           props.socket.emit('updateScore', props.opponent.roomId, props.opponent.transactionId, props.score)
+   
         }
+    
         session.KillSession()
         return
       }

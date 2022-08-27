@@ -7,7 +7,7 @@ import {
     updateWinner,
 } from "../../../redux/Game/GameAction"
 import { BetBalance, MainBalance } from "../balance"
-import { Select } from "@mantine/core"
+import {  Select} from "@mantine/core"
 import { board } from "../board-generator"
 import { session } from "../game"
 import "./game-form.scss"
@@ -59,12 +59,12 @@ export class game_form extends Component<{}, IState> {
 
     Submit() {
         if (board.isActive) {
-            return
+            return 
         }
 
-        if (this.state.amount < 0) {
+        if (this.state.amount  < 0) {
             alert("Please choose a bet amount")
-            return
+            return 
         }
 
         if (this.state.amount > 100) {
@@ -170,8 +170,11 @@ export class game_form extends Component<{}, IState> {
     }
 
     render() {
+    
         return (
+           
             <>
+            
                 {this.state.show && (
                     // @ts-ignore
                     <SearchOpponent
@@ -180,7 +183,7 @@ export class game_form extends Component<{}, IState> {
                     />
                 )}
                 <GameWinner />
-                <div className="formBody min-w-[300px]">
+                <div className="formBody bg-[#2b1d11] min-w-[300px] shadow-2xl ...">
                     <div id="form_container" className="form_container">
                         <div className="flex justify-between my-2">
                             {/* @ts-ignore */}
@@ -196,9 +199,12 @@ export class game_form extends Component<{}, IState> {
                         {/* @ts-ignore */}
 
                         <span className="label mt-4">Bet Amount</span>
-                        <div>
+                        <div className=''>
+                        
                             <Select
+                            
                                 id={`betAmount`}
+                                styles={{ input:{ backgroundColor: "black",color:'white' }} }
                                 placeholder="Pick one"
                                 value={`${this.state.amount}`}
                                 onChange={(val: string) => {
@@ -210,13 +216,16 @@ export class game_form extends Component<{}, IState> {
                                     { value: "0.003", label: "0.003" },
                                     { value: "0.004", label: "0.004" },
                                 ]}
+                            
                             />
+                    
                         </div>
 
                         <span className="label mt-4">Number Of Thieves</span>
-                        <div className="numberOfThieves">
-                            <div className="input_container">
+                        <div className="numberOfThieves rounded-2xl ">
+                            <div className="input_container  bg-black">
                                 <input
+                                  
                                     onChange={this.onChangeValue}
                                     type="radio"
                                     id="fiveThieves"
@@ -226,7 +235,7 @@ export class game_form extends Component<{}, IState> {
                                 ></input>
                                 <span className="checkmark">5</span>
                             </div>
-                            <div className="input_container">
+                            <div className="input_container  bg-black">
                                 <input
                                     onChange={this.onChangeValue}
                                     type="radio"
@@ -236,7 +245,7 @@ export class game_form extends Component<{}, IState> {
                                 ></input>
                                 <span className="checkmark">10</span>
                             </div>
-                            <div className="input_container">
+                            <div className="input_container  bg-black">
                                 <input
                                     onChange={this.onChangeValue}
                                     type="radio"
@@ -247,14 +256,14 @@ export class game_form extends Component<{}, IState> {
                                 <span className="checkmark">15</span>
                             </div>
                         </div>
-                        <div className="flex mt-4">
+                        <div className="flex mt-4 ">
                             <button
                                 disabled={board.isActive}
                                 onClick={this.Submit}
                                 id="start-cashout"
-                                className="bg-primary shadow-lg text-primaryBlack py-2 flex-1 cursor-pointer disabled:cursor-not-allowed disabled:bg-primaryBlack/40 disabled:text-primary"
+                                className="bg-primary rounded-2xl shadow-lg text-primaryBlack py-2 flex-1 cursor-pointer disabled:cursor-not-allowed disabled:bg-primaryBlack/40 disabled:text-primary"
                             >
-                                Start Game
+                                Bet
                             </button>
                         </div>
                         <div className="flex mt-4">
@@ -270,7 +279,9 @@ export class game_form extends Component<{}, IState> {
                         </div>
                     </div>
                 </div>
+                
             </>
+          
         )
     }
 }

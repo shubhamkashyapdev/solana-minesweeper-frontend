@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import { Select } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { GameCanvas } from "../common";
+import { ClassNames } from "@emotion/react";
 // import ReadMore from "react-native-read-more-text";
 
 interface MinesweeperProps {
@@ -53,7 +54,7 @@ const Minesweeper: React.FC<MinesweeperProps> = ({ description }) => {
             </div>
           </div>
           <div className="px-10">
-            <p className="pt-5 leading-8">
+            <p className="pt-5 lg: ml-2 leading-8">
               {
                 descirptionChunk1
               } {
@@ -80,10 +81,11 @@ const Minesweeper: React.FC<MinesweeperProps> = ({ description }) => {
 };
 
 Minesweeper.defaultProps = {
-  description: `Duis aute irure dolor in reprehenderit in voluptate velit esse
-    cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-    cupidatat non proident, sunt in culpa qui officia deserunt mollit
-    anim id est laborum.""Lorem ipsum dolor sit amet, consectetur
+
+  description:`Duis aute irure dolor in reprehenderit in voluptate velit esse
+      cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat eeesse
+    non proident, sunt in culpa qui officia deserunt mollit
+    anim id est laborum.""Lorem ipsum dolor sit amet, consecteturp
     adipiscing elit, sed do eiusmod tempor incididunt ut labore et
     dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
     exercitation ullamco laboris nisi ut aliquip ex ea commodo
@@ -121,7 +123,7 @@ Minesweeper.defaultProps = {
     consequat. Duis aute irure dolor in reprehenderit in voluptate
     velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
     occaecat cupidatat non proident, sunt in culpa qui officia
-    deserunt mollit anim id est laborum.`
+  deserunt mollit anim id est laborum.`
+  
 }
-
 export default Minesweeper;

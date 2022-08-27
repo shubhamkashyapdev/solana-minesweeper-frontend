@@ -104,7 +104,7 @@ export class Game extends React.Component {
   render() {
     let component = this
     return (
-      <div className="canvas_container">
+      <div className="canvas_container rounded-lg bg-[#1a110bce] shadow-2xl ...">
 
         <div
           ref={(thisDiv) => {

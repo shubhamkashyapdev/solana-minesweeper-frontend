@@ -82,7 +82,7 @@ const GameWinner = () => {
                 title: 'Match draw!',
                 message: 'Sol will be refunded to your account',
                 autoClose: 2000,
-                styles: (theme) => ({
+                styles: (theme) => ({ 
                     root: {
                         backgroundColor: theme.colors.dark[8],
                         '&::before': { BackgroundColor: theme.white }

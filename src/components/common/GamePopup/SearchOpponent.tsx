@@ -129,32 +129,32 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
 
       // it accept three args: signature, isPaid, transactionId,roomId
       socket.emit('updatePayment', txid, true, opponent?.transactionId, opponent?.roomId);
-      showNotification({
-        title: 'Payment Successfull',
-        message: 'Game is started',
-        styles: (theme) => ({
-          root: {
-            backgroundColor: theme.colors.dark[9],
-            borderColor: theme.colors.gary[2]
-          },
-          title: { color: theme.colors.gray[6] },
-          description: { color: theme.colors.gray[5] }
-        })
-      })
+      // showNotification({
+      //   title: 'Payment Successfull',
+      //   message: 'Game is started',
+      //   styles: (theme) => ({
+      //     root: {
+      //       backgroundColor: theme.colors.dark[9],
+      //       borderColor: theme.colors.gary[2]
+      //     },
+      //     title: { color: theme.colors.gray[6] },
+      //     description: { color: theme.colors.gray[5] }
+      //   })
+      // })
 
     } catch (err) {
-      showNotification({
-        title: 'Payment Failed :x:',
-        message: ' Unable to start game! Please try again!',
-        styles: (theme) => ({
-          root: {
-            backgroundColor: theme.colors.dark[9],
-            borderColor: theme.colors.gray[6]
-          },
-          title: { color: theme.white },
-          description: { color: theme.colors.gray[5] }
-        })
-      })
+      // showNotification({
+      //   title: 'Payment Failed :x:',
+      //   message: ' Unable to start game! Please try again!',
+      //   styles: (theme) => ({
+      //     root: {
+      //       backgroundColor: theme.colors.dark[9],
+      //       borderColor: theme.colors.gray[6]
+      //     },
+      //     title: { color: theme.white },
+      //     description: { color: theme.colors.gray[5] }
+      //   })
+      // })
       console.log(`Unable to confirm transaction: ${err}`)
     }
   }, [publicKey, sendTransaction, connection, opponent])
@@ -186,7 +186,7 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
           </div>
 
           <div className="w-28 h-28 rounded-full shadow-lg border-4 border-white">
-            <img
+             <img
               className="w-full h-full object-cover overflow-hidden rounded-full"
               src="http://surl.li/csiqn"
             />

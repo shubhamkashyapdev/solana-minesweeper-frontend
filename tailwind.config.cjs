@@ -13,6 +13,7 @@ module.exports = {
       border: "#D2D2D2",
       cardbg: "#160B00",
       tbg: "(255, 255, 255, 0.1);",
+      orange:'#7c2d12'
     },
     extend: {},
   },
