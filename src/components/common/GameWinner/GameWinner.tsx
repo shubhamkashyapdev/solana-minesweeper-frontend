@@ -11,6 +11,7 @@ import {
   sendAndConfirmTransaction,
 } from "@solana/web3.js";
 import { showNotification } from "@mantine/notifications";
+import { gameRender } from "../../../redux/Game/GameAction";
 interface Opponent {
   amount: number;
   level: number;
@@ -85,6 +86,8 @@ const GameWinner = () => {
 
   useEffect(() => {
     if (winnerArr.length == 1) {
+      //@ts-ignore
+      dispatch(gameRender());
       if (winnerArr[0] && publicKey?.toString() === winnerArr[0]) {
         transferSOLToPlayer(Number(betAmount) * 2, new PublicKey(winnerArr[0]));
       }
