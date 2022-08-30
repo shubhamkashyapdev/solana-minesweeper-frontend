@@ -1,8 +1,15 @@
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { WalletNotConnectedError } from "@solana/wallet-adapter-base"
+import { WalletNotConnectedError } from "@solana/wallet-adapter-base";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL, Keypair, sendAndConfirmTransaction } from '@solana/web3.js'
+import {
+  PublicKey,
+  Transaction,
+  SystemProgram,
+  LAMPORTS_PER_SOL,
+  Keypair,
+  sendAndConfirmTransaction,
+} from "@solana/web3.js";
 import { setOpponentDetails } from "../../../redux/Game/GameAction";
 import { showNotification } from "@mantine/notifications";
 
@@ -34,7 +41,7 @@ interface ISearchOpponent {
 interface ICard {
   amount: number;
   startGameSession: () => void;
-  opponent: Opponent | null
+  opponent: Opponent | null;
 }
 interface IStartGame {
   startGame: boolean;
@@ -45,13 +52,12 @@ interface ITransactions {
 }
 
 const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
-
   const [transactions, setTransactions] = useState<ITransactions>({
     myTransaction: false,
     opponentTransaction: false,
-  })
+  });
   //@ts-ignore
-  const { socket, opponent: MyOpponent } = useSelector(state => state.game)
+  const { socket, opponent: MyOpponent } = useSelector((state) => state.game);
   const { publicKey, sendTransaction } = useWallet();
   const { connection } = useConnection();
 
@@ -62,32 +68,31 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
           return {
             ...prevState,
             myTransaction: true,
-          }
-        })
+          };
+        });
       } else {
         setTransactions((prevState) => {
           return {
             ...prevState,
             opponentTransaction: true,
-          }
-        })
+          };
+        });
       }
     });
-  }, [opponent])
+  }, [opponent]);
   useEffect(() => {
     socket.on(`startGame`, (game: IStartGame) => {
       if (game.startGame) {
         startGameSession();
       }
-    })
-  }, [])
-
+    });
+  }, []);
 
   const makePayment = useCallback(async () => {
     if (!publicKey) {
-      throw new WalletNotConnectedError()
+      throw new WalletNotConnectedError();
     }
-    let pubkey = new PublicKey(publicKey)
+    let pubkey = new PublicKey(publicKey);
 
     const transaction = new Transaction().add(
       SystemProgram.transfer({
@@ -96,25 +101,25 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
         toPubkey: new PublicKey("7JnSaY4vLdxtS6BzpZkpoYVphxbWQTW2a59r4TxSPScq"),
         lamports: Number(amount) * LAMPORTS_PER_SOL,
       })
-    )
+    );
 
-    transaction.feePayer = pubkey
-    let { blockhash } = await connection.getLatestBlockhash()
-    transaction.recentBlockhash = blockhash
-    let signed = ""
+    transaction.feePayer = pubkey;
+    let { blockhash } = await connection.getLatestBlockhash();
+    transaction.recentBlockhash = blockhash;
+    let signed = "";
     try {
       //@ts-ignore
-      signed = await window.solana.signTransaction(transaction)
+      signed = await window.solana.signTransaction(transaction);
     } catch (err) {
-      console.log(`Error in sign transaction : ${err}`)
+      console.log(`Error in sign transaction : ${err}`);
     }
 
-    let txid = ""
+    let txid = "";
     try {
       //@ts-ignore
-      txid = await connection.sendRawTransaction(signed.serialize())
+      txid = await connection.sendRawTransaction(signed.serialize());
     } catch (ex) {
-      console.log(`Error sending transaction: ${ex}`)
+      console.log(`Error sending transaction: ${ex}`);
     }
     try {
       // await connection.confirmTransaction(txid)
@@ -125,43 +130,46 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
         signature: txid,
       });
 
-      console.log(`SOL deposit successful: ${txid}`)
+      console.log(`SOL deposit successful: ${txid}`);
 
       // it accept three args: signature, isPaid, transactionId,roomId
-      socket.emit('updatePayment', txid, true, opponent?.transactionId, opponent?.roomId);
-      showNotification({
-        title: 'Payment Successfull!',
-        message: 'Game will be started!',
-        autoClose: 2000,
-        styles: (theme) => ({
-          root: {
-            backgroundColor: theme.colors.dark[8],
-            '&::before': { backgroundColor: theme.colors.gray[4] },
-          },
-          title: { color: theme.colors.gray[4] },
-          description: { color: theme.colors.gray[5] }
-        })
-      })
+      socket.emit(
+        "updatePayment",
+        txid,
+        true,
+        opponent?.transactionId,
+        opponent?.roomId
+      );
+      // showNotification({
+      //   title: 'Payment Successfull',
+      //   message: 'Game is started',
+      //   styles: (theme) => ({
+      //     root: {
+      //       backgroundColor: theme.colors.dark[9],
+      //       borderColor: theme.colors.gary[2]
+      //     },
+      //     title: { color: theme.colors.gray[6] },
+      //     description: { color: theme.colors.gray[5] }
+      //   })
+      // })
     } catch (err) {
-      showNotification({
-        title: 'Payment Failed :x:',
-        message: ' Unable to start game! Please try again!',
-        styles: (theme) => ({
-          root: {
-            backgroundColor: theme.colors.dark[9],
-            borderColor: theme.colors.gray[6]
-          },
-          title: { color: theme.white },
-          description: { color: theme.colors.gray[5] }
-        })
-      })
-      console.log(`Unable to confirm transaction: ${err}`)
+      // showNotification({
+      //   title: 'Payment Failed :x:',
+      //   message: ' Unable to start game! Please try again!',
+      //   styles: (theme) => ({
+      //     root: {
+      //       backgroundColor: theme.colors.dark[9],
+      //       borderColor: theme.colors.gray[6]
+      //     },
+      //     title: { color: theme.white },
+      //     description: { color: theme.colors.gray[5] }
+      //   })
+      // })
+      console.log(`Unable to confirm transaction: ${err}`);
     }
-  }, [publicKey, sendTransaction, connection, opponent])
+  }, [publicKey, sendTransaction, connection, opponent]);
 
   // winner will get the bet amount and if the game is ended on a draw then both player will get the entree fee back to their wallet - this transaction will be trigger using the --@solana/web3.js-- library
-
-
 
   return (
     <div className="top-[50%] h-[300px] w-[500px] bg-primaryBlack shadow-lg rounded-2xl flex-col  items-center">
@@ -193,11 +201,17 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
           </div>
         </div>
         <div className="my-6">
-          {
-            opponent !== null ? (
-              <button disabled={transactions?.myTransaction} onClick={makePayment} className="bg-primary text-black py-2 px-6 rounded-full font-bold disabled:cursor-not-allowed disabled:bg-border">Pay {amount}: SOL</button>
-            ) : <div>Searching for opponent!</div>
-          }
+          {opponent !== null ? (
+            <button
+              disabled={transactions?.myTransaction}
+              onClick={makePayment}
+              className="bg-primary text-black py-2 px-6 rounded-full font-bold disabled:cursor-not-allowed disabled:bg-border"
+            >
+              Pay {amount}: SOL
+            </button>
+          ) : (
+            <div>Searching for opponent!</div>
+          )}
         </div>
       </div>
     </div>
@@ -208,12 +222,13 @@ const SearchOpponent: React.FC<ISearchOpponent> = ({
   hidePopup,
   startGame,
 }) => {
-
   const dispatch = useDispatch();
   const [opponent, setOpponent] = useState<Opponent | null>(null);
 
   //@ts-ignore
-  const { walletAddress, socket, betAmount, level } = useSelector((state) => state.game);
+  const { walletAddress, socket, betAmount, level } = useSelector(
+    (state) => state.game
+  );
   const availableForMatch = useRef(false);
   const gotOpponent = useRef(false);
   useEffect(() => {
@@ -228,13 +243,16 @@ const SearchOpponent: React.FC<ISearchOpponent> = ({
   useEffect(() => {
     if (gotOpponent.current === false) {
       let id = null;
-      socket.on("gotOpponent", (data: SocketData, roomId: string, transactionId: string) => {
-        id = roomId;
-        setOpponent({ ...data, roomId, transactionId });
-        //@ts-ignore
-        dispatch(setOpponentDetails({ ...data, roomId, transactionId }))
-        socket.emit('joinCustomRoom', id);
-      });
+      socket.on(
+        "gotOpponent",
+        (data: SocketData, roomId: string, transactionId: string) => {
+          id = roomId;
+          setOpponent({ ...data, roomId, transactionId });
+          //@ts-ignore
+          dispatch(setOpponentDetails({ ...data, roomId, transactionId }));
+          socket.emit("joinCustomRoom", id);
+        }
+      );
     }
     return () => {
       gotOpponent.current === false;
@@ -250,28 +268,29 @@ const SearchOpponent: React.FC<ISearchOpponent> = ({
       );
     }
 
-    return () => {
-
-    };
+    return () => {};
   }, [opponent]);
 
   useEffect(() => {
     socket.on("message", (message: string) => {
       console.warn({ message });
     });
-    return () => {
-    };
+    return () => {};
   }, []);
 
   const startGameSession = () => {
     //@ts-ignore
     hidePopup();
     startGame();
-  }
+  };
 
   return (
     <div className="bg-primaryBlack/50 z-10 fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center">
-      <Card opponent={opponent} startGameSession={startGameSession} amount={betAmount} />
+      <Card
+        opponent={opponent}
+        startGameSession={startGameSession}
+        amount={betAmount}
+      />
     </div>
   );
 };

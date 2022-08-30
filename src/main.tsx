@@ -11,7 +11,7 @@ window.Buffer = Buffer
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <Router>
     <React.StrictMode>
-      <MantineProvider withNormalizeCSS withGlobalStyles>
+      <MantineProvider withNormalizeCSS withGlobalStyles theme={{colorScheme:"dark"}}>
         <NotificationsProvider>
           <App />
         </NotificationsProvider>
