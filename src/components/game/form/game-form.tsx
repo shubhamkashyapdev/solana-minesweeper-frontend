@@ -83,6 +83,13 @@ export class game_form extends Component<{}, IState> {
         borderColor: theme.colors.gray[8],
         "&::before": { backgroundColor: theme.white },
         title: { color: theme.white },
+
+        closeButton: {
+          color: theme.black,
+          "&:hover": {
+            backgroundColor: "#F7C901",
+          },
+        },
       }),
     });
   }

@@ -12,6 +12,7 @@ import {
 } from "@solana/web3.js";
 import { setOpponentDetails } from "../../../redux/Game/GameAction";
 import { showNotification } from "@mantine/notifications";
+import { IconCheck, IconX } from "@tabler/icons";
 
 interface SocketData {
   amount: number;
@@ -140,31 +141,37 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
         opponent?.transactionId,
         opponent?.roomId
       );
-      // showNotification({
-      //   title: 'Payment Successfull',
-      //   message: 'Game is started',
-      //   styles: (theme) => ({
-      //     root: {
-      //       backgroundColor: theme.colors.dark[9],
-      //       borderColor: theme.colors.gary[2]
-      //     },
-      //     title: { color: theme.colors.gray[6] },
-      //     description: { color: theme.colors.gray[5] }
-      //   })
-      // })
+      showNotification({
+        title: "Transcation Succesfull",
+        message: "Game has been started",
+        autoClose: true,
+        icon: <IconCheck />,
+        color: "green",
+        styles: (theme) => ({
+          root: { backgroundColor: theme.colors.dark[9] },
+          borderColor: theme.colors.gray[8],
+          "&::before": { backgroundColor: theme.white },
+          title: { color: theme.white },
+        }),
+      });
     } catch (err) {
-      // showNotification({
-      //   title: 'Payment Failed :x:',
-      //   message: ' Unable to start game! Please try again!',
-      //   styles: (theme) => ({
-      //     root: {
-      //       backgroundColor: theme.colors.dark[9],
-      //       borderColor: theme.colors.gray[6]
-      //     },
-      //     title: { color: theme.white },
-      //     description: { color: theme.colors.gray[5] }
-      //   })
-      // })
+      showNotification({
+        title: "Transaction Failed",
+        message: " Unable to start game",
+        color: "red",
+        icon: <IconX />,
+        styles: (theme) => ({
+          root: { backgroundColor: theme.colors.dark[9] },
+          borderColor: theme.colors.gray[8],
+          "&::before": { backgroundColor: theme.colors.red },
+          title: { color: theme.white },
+
+          closeButton: {
+            color: theme.colors.dark,
+            "&:hover": { backgroundColor: "#F7C901", color: "#000000" },
+          },
+        }),
+      });
       console.log(`Unable to confirm transaction: ${err}`);
     }
   }, [publicKey, sendTransaction, connection, opponent]);
@@ -225,8 +232,8 @@ const SearchOpponent: React.FC<ISearchOpponent> = ({
   const dispatch = useDispatch();
   const [opponent, setOpponent] = useState<Opponent | null>(null);
 
-  //@ts-ignore
   const { walletAddress, socket, betAmount, level } = useSelector(
+    //@ts-ignore
     (state) => state.game
   );
   const availableForMatch = useRef(false);
