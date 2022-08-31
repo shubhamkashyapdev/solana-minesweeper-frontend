@@ -176,6 +176,10 @@ export class game_form extends Component<{}, IState> {
     return `0${minutes}:${`${seconds}`.length === 1 ? `0${seconds}` : seconds}`;
   }
 
+  resetInerval(): void {
+    console.log({ resetInerval: this });
+  }
+
   render() {
     return (
       <>
@@ -186,7 +190,7 @@ export class game_form extends Component<{}, IState> {
             startGame={() => this.startGame(this)}
           />
         )}
-        <GameWinner />
+        <GameWinner handleResetInterval={this.resetInerval} />
         <div className="formBody bg-[#2b1d11] min-w-[300px] shadow-2xl ...">
           <div id="form_container" className="form_container">
             <div className="flex justify-between my-2">
@@ -268,11 +272,10 @@ export class game_form extends Component<{}, IState> {
             <div className="flex mt-4">
               <button
                 onClick={this.leaveGameSession}
-                className={`py-2 flex-1 cursor-pointer ${
-                  board.isActive
-                    ? "bg-primary text-primaryBlack cursor-auto"
-                    : "bg-black/40 text-primary cursor-not-allowed"
-                }`}
+                className={`py-2 flex-1 cursor-pointer ${board.isActive
+                  ? "bg-primary text-primaryBlack cursor-auto"
+                  : "bg-black/40 text-primary cursor-not-allowed"
+                  }`}
               >
                 Leave Game
               </button>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { WalletNotConnectedError } from "@solana/wallet-adapter-base";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,25 +12,17 @@ import {
 } from "@solana/web3.js";
 import { showNotification } from "@mantine/notifications";
 import { gameRender } from "../../../redux/Game/GameAction";
-interface Opponent {
-  amount: number;
-  level: number;
-  socketId: string;
-  userId: string;
-  _id: string;
-  _v?: number;
-  roomId: string;
-  transactionId: string;
+import WinnerModal from "../modals/WinnerModal";
+interface GameWinnerProps {
+  handleResetInterval: () => void;
 }
 
-const GameWinner = () => {
-  //@ts-ignore
-  const {} = useSelector((state) => state.game);
-  let ran = false;
-
+const GameWinner: React.FunctionComponent<GameWinnerProps> = ({ handleResetInterval }) => {
+  const { } = useSelector((state: any) => state.game);
+  const ranRef = useRef(false);
+  const [show, setShow] = useState<boolean>(false)
   const [winnerArr, setWinnerArr] = useState<string[]>([]);
-  //@ts-ignore
-  const { socket, opponent, betAmount } = useSelector((state) => state.game);
+  const { socket, opponent, betAmount } = useSelector((state: any) => state.game);
   const { publicKey, sendTransaction } = useWallet();
   const { connection } = useConnection();
   const dispatch = useDispatch();
@@ -77,6 +69,7 @@ const GameWinner = () => {
             description: { color: theme.colors.gray[5] },
           }),
         });
+        setShow(true)
       } catch (err) {
         console.log(`Unable to confirm transaction: ${err}`);
       }
@@ -138,14 +131,22 @@ const GameWinner = () => {
   useEffect(() => {
     if (socket) {
       socket.on("winner", (walletAddress: string[]) => {
-        if (!ran && winnerArr.join() !== walletAddress.join()) {
+        if (!ranRef.current && winnerArr.join() !== walletAddress.join()) {
           console.log({ walletAddress });
-          ran = true;
+          ranRef.current = true;
           handleWinnerArr(walletAddress);
         }
       });
     }
   }, [socket]);
-  return null;
+  return (
+    <>
+      {
+        show && (
+          <WinnerModal handleResetInterval={handleResetInterval} setShow={setShow} show={show} />
+        )
+      }
+    </>
+  )
 };
 export default GameWinner;
