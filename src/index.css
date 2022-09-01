@@ -23,7 +23,7 @@
   }
 
   .app {
-    @apply bg-darkBG min-h-screen;
+    @apply bg-[#100c08] min-h-screen;
   }
 
   .wallet__button:hover {

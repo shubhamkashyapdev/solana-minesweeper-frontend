@@ -57,14 +57,18 @@ export class CardSlot extends Component implements ICardSlot {
                     '&::before': { backgroundColor: theme.colors.gray[4] },
                 },
                 title: { color: theme.colors.gray[4] },
-                description: { color: theme.colors.gray[5] }
+                description: { color: theme.colors.gray[5] },
+                closeButton: {
+                  color: theme.colors.dark,
+                  "&:hover": { backgroundColor: "#F7C901", color: "#000000" },
+                },
             })
         })
           console.log('game ended')
           props.socket.emit('updateScore', props.opponent.roomId, props.opponent.transactionId, props.score)
    
         }
-    
+   
         session.KillSession()
         return
       }

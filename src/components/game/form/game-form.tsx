@@ -76,7 +76,7 @@ export class game_form extends Component<{}, IState> {
     this.setState({ show: true });
     showNotification({
       title: "Searching for opponent",
-      message: "Game will be starting.. ",
+      message: "Game will be starting..",
       loading: true,
       styles: (theme) => ({
         root: { backgroundColor: theme.colors.dark[9] },
@@ -270,7 +270,7 @@ export class game_form extends Component<{}, IState> {
               </button>
             </div>
             <div className="flex mt-4">
-              <button
+              <button 
                 onClick={this.leaveGameSession}
                 className={`py-2 flex-1 cursor-pointer ${board.isActive
                   ? "bg-primary text-primaryBlack cursor-auto"

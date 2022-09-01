@@ -55,21 +55,9 @@ const GameWinner: React.FunctionComponent<GameWinnerProps> = ({ handleResetInter
           keypair,
         ]);
         console.log(`SOL recieved successful: ${txid}`);
-        console.log("payment updated successfully");
-        showNotification({
-          title: "Congrats you win the game!",
-          message: "Reward sent to your account",
-          autoClose: 2000,
-          styles: (theme) => ({
-            root: {
-              backgroundColor: theme.colors.dark[8],
-              "&::before": { backgroundColor: theme.colors.gray[4] },
-            },
-            title: { color: theme.white },
-            description: { color: theme.colors.gray[5] },
-          }),
-        });
-        setShow(true)
+        console.log("payment updated");
+  
+       
       } catch (err) {
         console.log(`Unable to confirm transaction: ${err}`);
       }
@@ -83,11 +71,30 @@ const GameWinner: React.FunctionComponent<GameWinnerProps> = ({ handleResetInter
       dispatch(gameRender());
       if (winnerArr[0] && publicKey?.toString() === winnerArr[0]) {
         transferSOLToPlayer(Number(betAmount) * 2, new PublicKey(winnerArr[0]));
+        showNotification({
+          title: "Congrats you win the game!",
+          message: "Reward sent to your account",
+          autoClose: 2000,
+          styles: (theme) => ({
+            root: {
+              backgroundColor: theme.colors.dark[8],
+              "&::before": { backgroundColor: theme.colors.gray[4] },
+            },
+            title: {color:theme.white},
+            description: { color: theme.colors.gray[5] },
+
+            closeButton: {
+              color: theme.colors.dark,
+              "&:hover": { backgroundColor: "#F7C901", color: "#000000" },
+            },
+          }),
+        });
+        setShow(true)
       }
       if (winnerArr[0] && publicKey?.toString() !== winnerArr[0]) {
         showNotification({
           title: "!Oops you lost the game",
-          message: " Better luck next time ",
+          message: "Better luck next time",
           autoClose: 2000,
           styles: (theme) => ({
             root: {
@@ -96,6 +103,11 @@ const GameWinner: React.FunctionComponent<GameWinnerProps> = ({ handleResetInter
             },
             title: { color: theme.white },
             description: { color: theme.colors.gray[5] },
+
+            closeButton: {
+              color: theme.colors.dark,
+              "&:hover": { backgroundColor: "#F7C901", color: "#000000" },
+            },
           }),
         });
       }
@@ -110,6 +122,13 @@ const GameWinner: React.FunctionComponent<GameWinnerProps> = ({ handleResetInter
             backgroundColor: theme.colors.dark[8],
             "&::before": { BackgroundColor: theme.white },
           },
+            title:{color: theme.white},
+            description:{color:theme.colors.gray[4]},
+            closeButton: {
+              color: theme.colors.dark,
+              "&:hover": { backgroundColor: "#F7C901", color: "#000000" },
+            },
+          
         }),
       });
       winnerArr.forEach((item) => {
@@ -121,8 +140,8 @@ const GameWinner: React.FunctionComponent<GameWinnerProps> = ({ handleResetInter
     }
   }, [winnerArr]);
 
-  const handleWinnerArr = useCallback(
-    (walletAddress: string[]) => {
+  const handleWinnerArr=useCallback(
+    (walletAddress: string[])=>{
       setWinnerArr(walletAddress);
     },
     [winnerArr]
@@ -132,7 +151,7 @@ const GameWinner: React.FunctionComponent<GameWinnerProps> = ({ handleResetInter
     if (socket) {
       socket.on("winner", (walletAddress: string[]) => {
         if (!ranRef.current && winnerArr.join() !== walletAddress.join()) {
-          console.log({ walletAddress });
+          console.log({walletAddress});
           ranRef.current = true;
           handleWinnerArr(walletAddress);
         }
@@ -141,8 +160,8 @@ const GameWinner: React.FunctionComponent<GameWinnerProps> = ({ handleResetInter
   }, [socket]);
   return (
     <>
-      {
-        show && (
+      {show&&(
+
           <WinnerModal handleResetInterval={handleResetInterval} setShow={setShow} show={show} />
         )
       }

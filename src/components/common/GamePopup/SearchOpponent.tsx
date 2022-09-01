@@ -152,6 +152,10 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
           borderColor: theme.colors.gray[8],
           "&::before": { backgroundColor: theme.white },
           title: { color: theme.white },
+          closeButton: {
+            color: theme.colors.dark,
+            "&:hover": { backgroundColor: "#F7C901" },
+          },
         }),
       });
     } catch (err) {
@@ -168,7 +172,7 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
 
           closeButton: {
             color: theme.colors.dark,
-            "&:hover": { backgroundColor: "#F7C901", color: "#000000" },
+            "&:hover": { backgroundColor: "#F7C901" },
           },
         }),
       });
