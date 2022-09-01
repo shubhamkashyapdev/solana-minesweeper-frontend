@@ -17,12 +17,16 @@ interface GameWinnerProps {
   handleResetInterval: () => void;
 }
 
-const GameWinner: React.FunctionComponent<GameWinnerProps> = ({ handleResetInterval }) => {
-  const { } = useSelector((state: any) => state.game);
+const GameWinner: React.FunctionComponent<GameWinnerProps> = ({
+  handleResetInterval,
+}) => {
+  const {} = useSelector((state: any) => state.game);
   const ranRef = useRef(false);
-  const [show, setShow] = useState<boolean>(false)
+  const [show, setShow] = useState<boolean>(false);
   const [winnerArr, setWinnerArr] = useState<string[]>([]);
-  const { socket, opponent, betAmount } = useSelector((state: any) => state.game);
+  const { socket, opponent, betAmount } = useSelector(
+    (state: any) => state.game
+  );
   const { publicKey, sendTransaction } = useWallet();
   const { connection } = useConnection();
   const dispatch = useDispatch();
@@ -55,9 +59,26 @@ const GameWinner: React.FunctionComponent<GameWinnerProps> = ({ handleResetInter
           keypair,
         ]);
         console.log(`SOL recieved successful: ${txid}`);
-        console.log("payment updated");
-  
-       
+        console.log("payment updated successfully");
+        showNotification({
+          title: "Congrats you win the game!",
+          message: "Reward sent to your account",
+          autoClose: 2000,
+          styles: (theme) => ({
+            root: {
+              backgroundColor: theme.colors.dark[8],
+              "&::before": { backgroundColor: theme.colors.gray[4] },
+            },
+            title: { color: theme.white },
+            description: { color: theme.colors.gray[5] },
+
+            closeButton: {
+              color: theme.colors.dark,
+              "&:hover": { backgroundColor: "#F7C901", color: "#000000" },
+            },
+          }),
+        });
+        setShow(true)
       } catch (err) {
         console.log(`Unable to confirm transaction: ${err}`);
       }
@@ -71,25 +92,6 @@ const GameWinner: React.FunctionComponent<GameWinnerProps> = ({ handleResetInter
       dispatch(gameRender());
       if (winnerArr[0] && publicKey?.toString() === winnerArr[0]) {
         transferSOLToPlayer(Number(betAmount) * 2, new PublicKey(winnerArr[0]));
-        showNotification({
-          title: "Congrats you win the game!",
-          message: "Reward sent to your account",
-          autoClose: 2000,
-          styles: (theme) => ({
-            root: {
-              backgroundColor: theme.colors.dark[8],
-              "&::before": { backgroundColor: theme.colors.gray[4] },
-            },
-            title: {color:theme.white},
-            description: { color: theme.colors.gray[5] },
-
-            closeButton: {
-              color: theme.colors.dark,
-              "&:hover": { backgroundColor: "#F7C901", color: "#000000" },
-            },
-          }),
-        });
-        setShow(true)
       }
       if (winnerArr[0] && publicKey?.toString() !== winnerArr[0]) {
         showNotification({
@@ -140,23 +142,34 @@ const GameWinner: React.FunctionComponent<GameWinnerProps> = ({ handleResetInter
     }
   }, [winnerArr]);
 
-  const handleWinnerArr=useCallback(
-    (walletAddress: string[])=>{
-      setWinnerArr(walletAddress);
-    },
-    [winnerArr]
-  );
+  // const handleWinnerArr = useCallback(
+  //   (walletAddress: string[]) => {
+  //     setWinnerArr(walletAddress);
+  //   },
+  //   [winnerArr]
+  // );
+  const handleWinnerArr = (walletAddress: string[]) => {
+    setWinnerArr(walletAddress);
+  };
 
   useEffect(() => {
     if (socket) {
       socket.on("winner", (walletAddress: string[]) => {
-        if (!ranRef.current && winnerArr.join() !== walletAddress.join()) {
-          console.log({walletAddress});
-          ranRef.current = true;
-          handleWinnerArr(walletAddress);
-        }
+        // if (!ranRef.current && winnerArr.join() !== walletAddress.join()) {
+        console.log({ walletAddress });
+        ranRef.current = true;
+        handleWinnerArr(walletAddress);
+        // }
       });
     }
+
+    return () => {
+      try {
+        socket.off("winner");
+      } catch (err) {
+        console.warn(err);
+      }
+    };
   }, [socket]);
   return (
     <>
@@ -166,6 +179,6 @@ const GameWinner: React.FunctionComponent<GameWinnerProps> = ({ handleResetInter
         )
       }
     </>
-  )
+  );
 };
 export default GameWinner;

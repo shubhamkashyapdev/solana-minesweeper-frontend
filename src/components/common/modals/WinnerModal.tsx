@@ -1,35 +1,32 @@
-import React, { useState } from "react"
 import { useDispatch } from "react-redux";
-import winnerGif from "../../../assets/animations/winner.gif"
-import { setBetAmount, setDifficultyLevel, updateScore } from "../../../redux/Game/GameAction";
-
+import winnerGif from "../../../assets/animations/winner.gif";
+import {
+  setBetAmount,
+  setDifficultyLevel,
+  updateScore,
+} from "../../../redux/Game/GameAction";
 interface WinnerProps {
-  setShow: React.Dispatch<React.SetStateAction<boolean>>,
+  setShow: React.Dispatch<React.SetStateAction<boolean>>;
   show: boolean;
  
   handleResetInterval: () => void;
 
 }
-const WinnerModal: React.FunctionComponent<WinnerProps> = ({ setShow,  show, handleResetInterval }) => {
-
-
-    // this.state = {
-      
-    //   time: 180, // 180 seconds - 3min
-      
-    // }
-  
+const WinnerModal: React.FunctionComponent<WinnerProps> = ({
+  setShow,
+  show,
+  handleResetInterval,
+}) => {
   const dispatch: any = useDispatch();
   
 
   const handlePlay = () => {
-    dispatch(setBetAmount(0))
-    dispatch(setDifficultyLevel(5))
-    dispatch(updateScore(0))
+    dispatch(setBetAmount(0));
+    dispatch(setDifficultyLevel(5));
+    dispatch(updateScore(0));
     handleResetInterval();
-
-    setShow(false)
-  }
+    setShow(false);
+  };
   return (
     <>
       <div className="fixed inset-0 z-10 overflow-y-auto">
@@ -58,7 +55,6 @@ const WinnerModal: React.FunctionComponent<WinnerProps> = ({ setShow,  show, han
               </div>
             {/* </div> */}
             <div className="bg-gray-50 px-4 justify-center py-3 sm:flex sm:flex-row-reverse sm:px-6">
-
               <button
                 onClick={() => handlePlay()}
                 type="button"
@@ -73,6 +69,6 @@ const WinnerModal: React.FunctionComponent<WinnerProps> = ({ setShow,  show, han
         </div>
       </div>
     </>
-  )
-}
-export default WinnerModal
+  );
+};
+export default WinnerModal;

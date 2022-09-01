@@ -80,6 +80,14 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
         });
       }
     });
+
+    return () => {
+      try {
+        socket.off("paymentRecieved");
+      } catch (err) {
+        console.warn(err);
+      }
+    };
   }, [opponent]);
   useEffect(() => {
     socket.on(`startGame`, (game: IStartGame) => {
@@ -87,6 +95,13 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
         startGameSession();
       }
     });
+    return () => {
+      try {
+        socket.off("startGame");
+      } catch (err) {
+        console.warn(err);
+      }
+    };
   }, []);
 
   const makePayment = useCallback(async () => {
@@ -266,6 +281,11 @@ const SearchOpponent: React.FC<ISearchOpponent> = ({
       );
     }
     return () => {
+      try {
+        socket.off("gotOpponent");
+      } catch (err) {
+        console.warn(err);
+      }
       gotOpponent.current === false;
     };
   }, []);
@@ -286,7 +306,13 @@ const SearchOpponent: React.FC<ISearchOpponent> = ({
     socket.on("message", (message: string) => {
       console.warn({ message });
     });
-    return () => {};
+    return () => {
+      try {
+        socket.off("message");
+      } catch (err) {
+        console.log(err);
+      }
+    };
   }, []);
 
   const startGameSession = () => {
