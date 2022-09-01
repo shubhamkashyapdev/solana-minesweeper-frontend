@@ -17,12 +17,16 @@ interface GameWinnerProps {
   handleResetInterval: () => void;
 }
 
-const GameWinner: React.FunctionComponent<GameWinnerProps> = ({ handleResetInterval }) => {
-  const { } = useSelector((state: any) => state.game);
+const GameWinner: React.FunctionComponent<GameWinnerProps> = ({
+  handleResetInterval,
+}) => {
+  const {} = useSelector((state: any) => state.game);
   const ranRef = useRef(false);
-  const [show, setShow] = useState<boolean>(false)
+  const [show, setShow] = useState<boolean>(false);
   const [winnerArr, setWinnerArr] = useState<string[]>([]);
-  const { socket, opponent, betAmount } = useSelector((state: any) => state.game);
+  const { socket, opponent, betAmount } = useSelector(
+    (state: any) => state.game
+  );
   const { publicKey, sendTransaction } = useWallet();
   const { connection } = useConnection();
   const dispatch = useDispatch();
@@ -69,7 +73,7 @@ const GameWinner: React.FunctionComponent<GameWinnerProps> = ({ handleResetInter
             description: { color: theme.colors.gray[5] },
           }),
         });
-        setShow(true)
+        setShow(true);
       } catch (err) {
         console.log(`Unable to confirm transaction: ${err}`);
       }
@@ -121,32 +125,45 @@ const GameWinner: React.FunctionComponent<GameWinnerProps> = ({ handleResetInter
     }
   }, [winnerArr]);
 
-  const handleWinnerArr = useCallback(
-    (walletAddress: string[]) => {
-      setWinnerArr(walletAddress);
-    },
-    [winnerArr]
-  );
+  // const handleWinnerArr = useCallback(
+  //   (walletAddress: string[]) => {
+  //     setWinnerArr(walletAddress);
+  //   },
+  //   [winnerArr]
+  // );
+  const handleWinnerArr = (walletAddress: string[]) => {
+    setWinnerArr(walletAddress);
+  };
 
   useEffect(() => {
     if (socket) {
       socket.on("winner", (walletAddress: string[]) => {
-        if (!ranRef.current && winnerArr.join() !== walletAddress.join()) {
-          console.log({ walletAddress });
-          ranRef.current = true;
-          handleWinnerArr(walletAddress);
-        }
+        // if (!ranRef.current && winnerArr.join() !== walletAddress.join()) {
+        console.log({ walletAddress });
+        ranRef.current = true;
+        handleWinnerArr(walletAddress);
+        // }
       });
     }
+
+    return () => {
+      try {
+        socket.off("winner");
+      } catch (err) {
+        console.warn(err);
+      }
+    };
   }, [socket]);
   return (
     <>
-      {
-        show && (
-          <WinnerModal handleResetInterval={handleResetInterval} setShow={setShow} show={show} />
-        )
-      }
+      {show && (
+        <WinnerModal
+          handleResetInterval={handleResetInterval}
+          setShow={setShow}
+          show={show}
+        />
+      )}
     </>
-  )
+  );
 };
 export default GameWinner;
