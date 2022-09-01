@@ -60,6 +60,21 @@ const GameWinner: React.FunctionComponent<GameWinnerProps> = ({
         ]);
         console.log(`SOL recieved successful: ${txid}`);
         console.log("payment updated successfully");
+    
+       
+      } catch (err) {
+        console.log(`Unable to confirm transaction: ${err}`);
+      }
+    },
+    [publicKey, sendTransaction, connection, opponent]
+  );
+
+  useEffect(() => {
+    if (winnerArr.length == 1) {
+      //@ts-ignore
+      dispatch(gameRender());
+      if (winnerArr[0] && publicKey?.toString() === winnerArr[0]) {
+        transferSOLToPlayer(Number(betAmount) * 2, new PublicKey(winnerArr[0]));
         showNotification({
           title: "Congrats you win the game!",
           message: "Reward sent to your account",
@@ -79,19 +94,6 @@ const GameWinner: React.FunctionComponent<GameWinnerProps> = ({
           }),
         });
         setShow(true)
-      } catch (err) {
-        console.log(`Unable to confirm transaction: ${err}`);
-      }
-    },
-    [publicKey, sendTransaction, connection, opponent]
-  );
-
-  useEffect(() => {
-    if (winnerArr.length == 1) {
-      //@ts-ignore
-      dispatch(gameRender());
-      if (winnerArr[0] && publicKey?.toString() === winnerArr[0]) {
-        transferSOLToPlayer(Number(betAmount) * 2, new PublicKey(winnerArr[0]));
       }
       if (winnerArr[0] && publicKey?.toString() !== winnerArr[0]) {
         showNotification({
