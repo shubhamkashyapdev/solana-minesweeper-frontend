@@ -14,6 +14,8 @@ import { setOpponentDetails } from "../../../redux/Game/GameAction";
 import { showNotification } from "@mantine/notifications";
 import { IconCheck, IconX } from "@tabler/icons";
 
+import { AvatarGenerator } from "random-avatar-generator";
+
 interface SocketData {
   amount: number;
   level: number;
@@ -195,6 +197,31 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
     }
   }, [publicKey, sendTransaction, connection, opponent]);
 
+  //@ts-ignore
+  const game = useSelector((state) => state.game);
+  const generator = new AvatarGenerator();
+  const [randomString, setRandomString] = useState("");
+
+  useEffect(() => {
+    const imageChanger = setInterval(() => {
+      const randomnum = (Math.random() * 10000).toString();
+      setRandomString(randomnum);
+
+      try {
+        if (game?.opponent.walletId) {
+          clearInterval(imageChanger);
+          setRandomString(game.opponent.walletId);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    }, 500);
+
+    return () => {
+      clearInterval(imageChanger);
+    };
+  }, [game.opponent]);
+
   // winner will get the bet amount and if the game is ended on a draw then both player will get the entree fee back to their wallet - this transaction will be trigger using the --@solana/web3.js-- library
 
   return (
@@ -209,7 +236,7 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
           <div className="w-28 h-28 rounded-full shadow-lg border-4 border-white">
             <img
               className="w-full h-full object-cover overflow-hidden rounded-full"
-              src="http://surl.li/csiqn"
+              src={generator.generateRandomAvatar(game.walletAddress)}
             />
           </div>
           <div className="w-16 h-16">
@@ -222,7 +249,8 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
           <div className="w-28 h-28 rounded-full shadow-lg border-4 border-white">
             <img
               className="w-full h-full object-cover overflow-hidden rounded-full"
-              src="http://surl.li/csiqn"
+              //@ts-ignore
+              src={generator.generateRandomAvatar(randomString)}
             />
           </div>
         </div>
