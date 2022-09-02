@@ -208,7 +208,7 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
       setRandomString(randomnum);
 
       try {
-        if (game?.opponent.walletId) {
+        if (game?.opponent) {
           clearInterval(imageChanger);
           setRandomString(game.opponent.walletId);
         }

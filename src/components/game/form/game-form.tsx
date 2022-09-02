@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { connect, Subscription } from "react-redux";
 import {
+  gameEnded,
   setBetAmount,
   setDifficultyLevel,
   updateScore,
@@ -35,7 +36,7 @@ export class game_form extends Component<{}, IState> {
       amount: BetBalance.Set(MainBalance.GetValue()),
       mode: 1,
       score: 0,
-      time: 180, // 180 seconds - 3min
+      time: 30, // 180 seconds - 3min
       show: false,
       winnerArr: [],
     };
@@ -160,6 +161,9 @@ export class game_form extends Component<{}, IState> {
     game_form.interval = setInterval(() => {
       if (this.state.time <= 0) {
         session.KillSession();
+        gameEnded();
+
+        console.log({ gameEnded: true });
       }
       this.setState({ time: this.state.time - 1 });
     }, 1000);
@@ -270,12 +274,13 @@ export class game_form extends Component<{}, IState> {
               </button>
             </div>
             <div className="flex mt-4">
-              <button 
+              <button
                 onClick={this.leaveGameSession}
-                className={`py-2 flex-1 cursor-pointer ${board.isActive
-                  ? "bg-primary text-primaryBlack cursor-auto"
-                  : "bg-black/40 text-primary cursor-not-allowed"
-                  }`}
+                className={`py-2 flex-1 cursor-pointer ${
+                  board.isActive
+                    ? "bg-primary text-primaryBlack cursor-auto"
+                    : "bg-black/40 text-primary cursor-not-allowed"
+                }`}
               >
                 Leave Game
               </button>
@@ -304,6 +309,7 @@ const mapDispatchToProps = {
   setBetAmount: setBetAmount,
   setDifficultyLevel: setDifficultyLevel,
   updateWinner: updateWinner,
+  gameEnded: gameEnded,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(game_form);
