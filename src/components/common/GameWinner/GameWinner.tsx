@@ -12,16 +12,17 @@ import {
 } from "@solana/web3.js";
 import { showNotification } from "@mantine/notifications";
 import { gameRender } from "../../../redux/Game/GameAction";
-import WinnerModal from "../modals/WinnerModal";
+import WinnerModal, { gameStatus } from "../modals/WinnerModal";
 interface GameWinnerProps {
   handleResetInterval: () => void;
 }
 
 const GameWinner: React.FunctionComponent<GameWinnerProps> = () => {
-  const { } = useSelector((state: any) => state.game);
+  const {} = useSelector((state: any) => state.game);
   const ranRef = useRef(false);
   const [show, setShow] = useState<boolean>(false);
   const [winnerArr, setWinnerArr] = useState<string[]>([]);
+  const [palyerStatus, setPlayerStatus] = useState<gameStatus>("tie");
   const { socket, opponent, betAmount } = useSelector(
     (state: any) => state.game
   );
@@ -58,8 +59,6 @@ const GameWinner: React.FunctionComponent<GameWinnerProps> = () => {
         ]);
         console.log(`SOL recieved successful: ${txid}`);
         console.log("payment updated successfully");
-
-
       } catch (err) {
         console.log(`Unable to confirm transaction: ${err}`);
       }
@@ -73,6 +72,7 @@ const GameWinner: React.FunctionComponent<GameWinnerProps> = () => {
       dispatch(gameRender());
       if (winnerArr[0] && publicKey?.toString() === winnerArr[0]) {
         transferSOLToPlayer(Number(betAmount) * 2, new PublicKey(winnerArr[0]));
+        setPlayerStatus("win");
         showNotification({
           title: "Congrats you win the game!",
           message: "Reward sent to your account",
@@ -91,9 +91,10 @@ const GameWinner: React.FunctionComponent<GameWinnerProps> = () => {
             },
           }),
         });
-        setShow(true)
+        setShow(true);
       }
       if (winnerArr[0] && publicKey?.toString() !== winnerArr[0]) {
+        setPlayerStatus("lose");
         showNotification({
           title: "!Oops you lost the game",
           message: "Better luck next time",
@@ -112,9 +113,11 @@ const GameWinner: React.FunctionComponent<GameWinnerProps> = () => {
             },
           }),
         });
+        setShow(true);
       }
     }
     if (winnerArr.length == 2) {
+      setPlayerStatus("tie");
       showNotification({
         title: "Match draw!",
         message: "Sol will be refunded to your account",
@@ -130,7 +133,6 @@ const GameWinner: React.FunctionComponent<GameWinnerProps> = () => {
             color: theme.colors.dark,
             "&:hover": { backgroundColor: "#F7C901", color: "#000000" },
           },
-
         }),
       });
       winnerArr.forEach((item) => {
@@ -139,6 +141,7 @@ const GameWinner: React.FunctionComponent<GameWinnerProps> = () => {
           transferSOLToPlayer(betAmount, new PublicKey(item));
         }
       });
+      setShow(true);
     }
   }, [winnerArr]);
 
@@ -174,9 +177,8 @@ const GameWinner: React.FunctionComponent<GameWinnerProps> = () => {
   return (
     <>
       {show && (
-        <WinnerModal setShow={setShow} show={show} />
-      )
-      }
+        <WinnerModal setShow={setShow} show={show} modelType={palyerStatus} />
+      )}
     </>
   );
 };
