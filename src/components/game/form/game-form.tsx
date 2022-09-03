@@ -17,6 +17,7 @@ import "./game-form.scss";
 import { SearchOpponent } from "../../common";
 import GameWinner from "../../common/GameWinner/GameWinner";
 import { showNotification } from "@mantine/notifications";
+import { IconX } from "@tabler/icons";
 
 export interface IState {
   amount: number;
@@ -77,6 +78,31 @@ export class game_form extends Component<IProps, IState> {
   }
 
   Submit() {
+    // console.log(board.isActive);
+    // console.warn(this.props.walletAddress);
+
+    if (!this.props.walletAddress) {
+      showNotification({
+        title: "Error",
+        message: "Wallet not connected pls connect first",
+        autoClose: 2000,
+        color: "red",
+        icon: <IconX />,
+        styles: (theme) => ({
+          root: {
+            backgroundColor: theme.colors.dark[8],
+            "&::before": { BackgroundColor: theme.white },
+          },
+          title: { color: theme.white },
+          description: { color: theme.colors.gray[4] },
+          closeButton: {
+            color: theme.colors.dark,
+            "&:hover": { backgroundColor: "#F7C901", color: "#000000" },
+          },
+        }),
+      });
+    }
+
     if (board.isActive) {
       return;
     }
