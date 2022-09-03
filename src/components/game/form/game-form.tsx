@@ -1,80 +1,98 @@
-import React, { Component } from "react";
-import { connect, Subscription } from "react-redux";
+import React, { Component } from "react"
+import { connect, Subscription } from "react-redux"
 import {
   gameEnded,
+  resetTime,
   setBetAmount,
   setDifficultyLevel,
+  setTime,
   updateScore,
   updateWinner,
-} from "../../../redux/Game/GameAction";
-import { BetBalance, MainBalance } from "../balance";
-import { Select } from "@mantine/core";
-import { board } from "../board-generator";
-import { session } from "../game";
-import "./game-form.scss";
-import { SearchOpponent } from "../../common";
-import GameWinner from "../../common/GameWinner/GameWinner";
-import { showNotification } from "@mantine/notifications";
+} from "../../../redux/Game/GameAction"
+import { BetBalance, MainBalance } from "../balance"
+import { Select } from "@mantine/core"
+import { board } from "../board-generator"
+import { session } from "../game"
+import "./game-form.scss"
+import { SearchOpponent } from "../../common"
+import GameWinner from "../../common/GameWinner/GameWinner"
+import { showNotification } from "@mantine/notifications"
 
 export interface IState {
-  amount: number;
-  mode: number;
-  score: number;
-  time: number;
-  show: boolean;
-  winnerArr: string[];
+  amount: number
+  mode: number
+  score: number
+  show: boolean
+  winnerArr: string[]
 }
 
-export class game_form extends Component<{}, IState> {
-  static interval: any;
-  static self: typeof game_form = this;
-  static gameProps: any = null;
+export interface IProps {
+  score: number
+  betAmount: number
+  walletAddress: string
+  level: number
+  socket: any
+  opponent: any
+  winnerArr: string[]
+  time: number
+  updateScore: any
+  setBetAmount: any
+  setDifficultyLevel: any
+  updateWinner: any
+  gameEnded: any
+  resetTime: any
+  setTime: any
+}
 
-  constructor(props: any) {
-    super(props);
+export class game_form extends Component<IProps, IState> {
+  static interval: any
+  static self: typeof game_form = this
+  static gameProps: any = null
+
+  constructor(props: IProps) {
+    super(props)
     this.state = {
       amount: BetBalance.Set(MainBalance.GetValue()),
       mode: 1,
       score: 0,
-      time: 30, // 180 seconds - 3min
       show: false,
       winnerArr: [],
-    };
-    this.GetInputAmount = this.GetInputAmount.bind(this);
-    this.onChangeValue = this.onChangeValue.bind(this);
-    this.Submit = this.Submit.bind(this);
+    }
+    this.GetInputAmount = this.GetInputAmount.bind(this)
+    this.onChangeValue = this.onChangeValue.bind(this)
+    this.Submit = this.Submit.bind(this)
   }
 
   GetInputAmount(event: any) {
     this.setState((pState) => ({
       amount: BetBalance.Set(MainBalance.CheckIfBalance(event.target.value)),
       mode: pState.mode,
-    }));
+    }))
   }
 
   componentDidUpdate() {
-    console.log(`game form re-render triggered`);
+    console.log(`game form re-render triggered`)
     //@ts-ignore
-    game_form.gameProps = this.props;
+    game_form.gameProps = this.props
   }
 
   Submit() {
     if (board.isActive) {
-      return;
+      return
     }
 
     if (this.state.amount < 0) {
-      alert("Please choose a bet amount");
-      return;
+      alert("Please choose a bet amount")
+      return
     }
 
     if (this.state.amount > 100) {
-      return;
+      return
     }
 
     //@ts-ignore
-    this.props.setBetAmount(Number(this.state.amount));
-    this.setState({ show: true });
+    this.props.setBetAmount(Number(this.state.amount))
+    this.setState({ show: true })
     showNotification({
       title: "Searching for opponent",
       message: "Game will be starting..",
@@ -92,39 +110,39 @@ export class game_form extends Component<{}, IState> {
           },
         },
       }),
-    });
+    })
   }
 
   hidePopup() {
-    this.setState({ show: false });
+    this.setState({ show: false })
   }
 
   startGame(self: any) {
     if (board.isActive) {
-      return;
+      return
     }
     if (this.state.amount < 0) {
-      alert("Please choose a bet amount");
-      return;
+      alert("Please choose a bet amount")
+      return
     }
 
     if (this.state.amount > 100) {
-      return;
+      return
     }
     if (!board.isActive) {
-      self.startGameSession();
+      self.startGameSession()
       // @ts-ignore
-      self.props.updateScore(0);
-      session.StartSession(self);
-      return;
+      self.props.updateScore(0)
+      session.StartSession(self)
+      return
     }
     //@ts-ignore
-    this.props.gameEnded();
-    session.EndSession();
+    this.props.gameEnded()
+    session.EndSession()
   }
 
   leaveGameSession() {
-    session.EndSession();
+    session.EndSession()
   }
 
   onChangeValue(event: any) {
@@ -133,62 +151,63 @@ export class game_form extends Component<{}, IState> {
       Number(event.target.value) < 5
         ? Number(event.target.value) * 5
         : Number(event.target.value)
-    );
+    )
     this.setState(() => ({
       mode: event.target.value,
-    }));
+    }))
   }
 
   UpdateAmount() {
     this.setState((pState) => ({
       amount: BetBalance.GetValue(),
       mode: pState.mode,
-    }));
+    }))
   }
 
   ActivateForm(isActive: boolean): void {
     if (isActive) {
-      document.getElementById("form_container")?.classList.remove("disabled");
-      return;
+      document.getElementById("form_container")?.classList.remove("disabled")
+      return
     }
-    document.getElementById("form_container")?.classList.add("disabled");
-    return;
+    document.getElementById("form_container")?.classList.add("disabled")
+    return
   }
 
   startGameSession() {
     //@todo - show popup to notify the user that game has ended
-    //@todo - reset the state after the session ends
+    //@todo - reset the state after the session ends 
     game_form.interval = setInterval(() => {
-      if (this.state.time <= 0) {
-        session.KillSession();
-        gameEnded();
-
-        console.log({ gameEnded: true });
+      if (this.props.time <= 0) {
+        console.log('update the socre')
+        this.props.resetTime();
+        this.props.socket.emit('updateScore', this.props.opponent.roomId, this.props.opponent.transactionId, this.props.score)
+        clearInterval(game_form.interval)
+        session.KillSession()
       }
-      this.setState({ time: this.state.time - 1 });
-    }, 1000);
-    return () => clearInterval(game_form.interval);
+      this.props.setTime()
+    }, 1000)
+    return () => clearInterval(game_form.interval)
   }
 
   static getInterval() {
-    return this.interval;
+    return this.interval
   }
 
   getTime(num: number): string {
-    let minutes = Math.floor(num / 60);
-    let seconds = num - minutes * 60;
-    return `0${minutes}:${`${seconds}`.length === 1 ? `0${seconds}` : seconds}`;
+    let minutes = Math.floor(num / 60)
+    let seconds = num - minutes * 60
+    return `0${minutes}:${`${seconds}`.length === 1 ? `0${seconds}` : seconds}`
   }
 
   resetInerval(): void {
-    console.log({ resetInerval: this });
+
+    console.log({ resetInerval: game_form.gameProps })
   }
 
   render() {
     return (
       <>
         {this.state.show && (
-          // @ts-ignore
           <SearchOpponent
             hidePopup={() => this.hidePopup()}
             startGame={() => this.startGame(this)}
@@ -198,17 +217,15 @@ export class game_form extends Component<{}, IState> {
         <div className="formBody bg-[#2b1d11] min-w-[300px] shadow-2xl ...">
           <div id="form_container" className="form_container">
             <div className="flex justify-between my-2">
-              {/* @ts-ignore */}
               <span>Score: {Number(this.props.score)}</span>
-              {/* @ts-ignore */}
+
               <span>Bet Amount: {Number(this.props.betAmount)}</span>
-              {/* @ts-ignore */}
+
               <span>Level: {Number(this.props.level)}</span>
             </div>
             <div className="flex mb-2">
-              <span>Remaining: {this.getTime(this.state.time)}</span>
+              <span>Remaining: {this.getTime(this.props.time)}</span>
             </div>
-            {/* @ts-ignore */}
 
             <span className="label mt-4">Bet Amount</span>
             <div className="">
@@ -218,7 +235,7 @@ export class game_form extends Component<{}, IState> {
                 placeholder="Pick one"
                 value={`${this.state.amount}`}
                 onChange={(val: string) => {
-                  this.setState({ amount: Number(val) });
+                  this.setState({ amount: Number(val) })
                 }}
                 data={[
                   { value: "0.001", label: "0.001" },
@@ -276,11 +293,10 @@ export class game_form extends Component<{}, IState> {
             <div className="flex mt-4">
               <button
                 onClick={this.leaveGameSession}
-                className={`py-2 flex-1 cursor-pointer ${
-                  board.isActive
-                    ? "bg-primary text-primaryBlack cursor-auto"
-                    : "bg-black/40 text-primary cursor-not-allowed"
-                }`}
+                className={`py-2 flex-1 cursor-pointer ${board.isActive
+                  ? "bg-primary text-primaryBlack cursor-auto"
+                  : "bg-black/40 text-primary cursor-not-allowed"
+                  }`}
               >
                 Leave Game
               </button>
@@ -288,7 +304,7 @@ export class game_form extends Component<{}, IState> {
           </div>
         </div>
       </>
-    );
+    )
   }
 }
 
@@ -301,7 +317,8 @@ function mapStateToProps(state: any) {
     socket: state.game.socket,
     opponent: state.game.opponent,
     winnerArr: state.game.winnerArr,
-  };
+    time: state.game.time,
+  }
 }
 
 const mapDispatchToProps = {
@@ -310,6 +327,8 @@ const mapDispatchToProps = {
   setDifficultyLevel: setDifficultyLevel,
   updateWinner: updateWinner,
   gameEnded: gameEnded,
-};
+  resetTime: resetTime,
+  setTime: setTime,
+}
 
-export default connect(mapStateToProps, mapDispatchToProps)(game_form);
+export default connect(mapStateToProps, mapDispatchToProps)(game_form)

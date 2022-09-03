@@ -1,6 +1,7 @@
 import { useDispatch } from "react-redux";
 import winnerGif from "../../../assets/animations/winner.gif";
 import {
+  resetTime,
   setBetAmount,
   setDifficultyLevel,
   updateScore,
@@ -8,25 +9,22 @@ import {
 interface WinnerProps {
   setShow: React.Dispatch<React.SetStateAction<boolean>>;
   show: boolean;
- 
-  handleResetInterval: () => void;
 
 }
 const WinnerModal: React.FunctionComponent<WinnerProps> = ({
   setShow,
   show,
-  handleResetInterval,
 }) => {
   const dispatch: any = useDispatch();
-  
 
   const handlePlay = () => {
     dispatch(setBetAmount(0));
     dispatch(setDifficultyLevel(5));
     dispatch(updateScore(0));
-    handleResetInterval();
+    dispatch(resetTime())
     setShow(false);
   };
+
   return (
     <>
       <div className="fixed inset-0 z-10 overflow-y-auto">
@@ -39,20 +37,20 @@ const WinnerModal: React.FunctionComponent<WinnerProps> = ({
           <div className="relative transform rounded-lg bg-[#170605ea]  shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
 
             {/* <div className="bg-[#170605ea] px-4 pb-4 sm:p-6 sm:pb-4"> */}
-              <div className="sm:flex sm:items-start">
-                <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+            <div className="sm:flex sm:items-start">
+              <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
 
-                </div>
-                <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-               
+              </div>
+              <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
 
-                  <div className="pt-4 justify-center">
-                    <div className="text-sm text-darkBG">
-                      <img src={`https://gifimage.net/wp-content/uploads/2017/08/winner-gif-18.gif`}/>
-                    </div>
+
+                <div className="pt-4 justify-center">
+                  <div className="text-sm text-darkBG">
+                    <img src={`https://gifimage.net/wp-content/uploads/2017/08/winner-gif-18.gif`} />
                   </div>
                 </div>
               </div>
+            </div>
             {/* </div> */}
             <div className="bg-gray-50 px-4 justify-center py-3 sm:flex sm:flex-row-reverse sm:px-6">
               <button

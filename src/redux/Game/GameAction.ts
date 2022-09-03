@@ -4,6 +4,8 @@ import {
   OPPONENT_DETAILS,
   PALYER_WALLET_ADDRESS,
   PLAYER_BET_AMMOUNT,
+  RESET_TIME,
+  SET_TIME,
   SOCKET_IO,
   UPDATE_SCORE,
   UPDATE_WINNER,
@@ -91,3 +93,14 @@ export const gameRender = () => (dispatch: any, getState: any) => {
     type: GAME_RENDER,
   });
 };
+
+export const setTime = () => (dispatch: any, getState: any) => {
+  dispatch({
+    type: SET_TIME,
+  })
+}
+export const resetTime = () => (dispatch: any, getState: any) => {
+  dispatch({
+    type: RESET_TIME,
+  })
+}

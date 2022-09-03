@@ -6,3 +6,5 @@ export const SOCKET_IO = "SOCKET_IO";
 export const DIFFICULTY_LEVEL = "DIFFICULTY_LEVEL";
 export const UPDATE_WINNER = "UPDATE_WINNER";
 export const GAME_RENDER = "GAME_RENDER";
+export const SET_TIME = "SET_TIME";
+export const RESET_TIME = "RESET_TIME";

@@ -7,6 +7,8 @@ import {
   DIFFICULTY_LEVEL,
   UPDATE_WINNER,
   GAME_RENDER,
+  RESET_TIME,
+  SET_TIME,
 } from "./GameTypes";
 
 interface Action {
@@ -23,6 +25,7 @@ const initialState = {
   level: 5,
   winnerArr: [],
   game: false,
+  time: 30, // 3min - 180sec
 };
 
 export const gameReducer = (state = initialState, action: Action) => {
@@ -69,6 +72,16 @@ export const gameReducer = (state = initialState, action: Action) => {
         ...state,
         game: !state.game,
       };
+    case SET_TIME:
+      return {
+        ...state,
+        time: state.time - 1
+      }
+    case RESET_TIME:
+      return {
+        ...state,
+        time: 180,
+      }
     default:
       return state;
   }

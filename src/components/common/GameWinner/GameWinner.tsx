@@ -17,10 +17,8 @@ interface GameWinnerProps {
   handleResetInterval: () => void;
 }
 
-const GameWinner: React.FunctionComponent<GameWinnerProps> = ({
-  handleResetInterval,
-}) => {
-  const {} = useSelector((state: any) => state.game);
+const GameWinner: React.FunctionComponent<GameWinnerProps> = () => {
+  const { } = useSelector((state: any) => state.game);
   const ranRef = useRef(false);
   const [show, setShow] = useState<boolean>(false);
   const [winnerArr, setWinnerArr] = useState<string[]>([]);
@@ -60,8 +58,8 @@ const GameWinner: React.FunctionComponent<GameWinnerProps> = ({
         ]);
         console.log(`SOL recieved successful: ${txid}`);
         console.log("payment updated successfully");
-    
-       
+
+
       } catch (err) {
         console.log(`Unable to confirm transaction: ${err}`);
       }
@@ -126,13 +124,13 @@ const GameWinner: React.FunctionComponent<GameWinnerProps> = ({
             backgroundColor: theme.colors.dark[8],
             "&::before": { BackgroundColor: theme.white },
           },
-            title:{color: theme.white},
-            description:{color:theme.colors.gray[4]},
-            closeButton: {
-              color: theme.colors.dark,
-              "&:hover": { backgroundColor: "#F7C901", color: "#000000" },
-            },
-          
+          title: { color: theme.white },
+          description: { color: theme.colors.gray[4] },
+          closeButton: {
+            color: theme.colors.dark,
+            "&:hover": { backgroundColor: "#F7C901", color: "#000000" },
+          },
+
         }),
       });
       winnerArr.forEach((item) => {
@@ -175,10 +173,9 @@ const GameWinner: React.FunctionComponent<GameWinnerProps> = ({
   }, [socket]);
   return (
     <>
-      {show&&(
-
-          <WinnerModal handleResetInterval={handleResetInterval} setShow={setShow} show={show} />
-        )
+      {show && (
+        <WinnerModal setShow={setShow} show={show} />
+      )
       }
     </>
   );
