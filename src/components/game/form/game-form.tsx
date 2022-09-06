@@ -18,6 +18,7 @@ import { SearchOpponent } from "../../common";
 import GameWinner from "../../common/GameWinner/GameWinner";
 import { showNotification } from "@mantine/notifications";
 import { IconX } from "@tabler/icons";
+import { priceData } from "../../../utils/data";
 
 export interface IState {
   amount: number;
@@ -246,7 +247,6 @@ export class game_form extends Component<IProps, IState> {
           <div id="form_container" className="form_container">
             <div className="flex justify-between my-4 space-x-2">
               {/* <ReactTooltip /> */}
-
               <button data-tip="Score" data-place="top" type="button" className="relative bg-darkBG shadow-xl rounded-sm  font-bold w-full py-2">
                 <div className="absolute text-sm -top-4 drop-shadow-sm ">Score</div>
                 {Number(this.props.score)}
@@ -277,12 +277,7 @@ export class game_form extends Component<IProps, IState> {
                 onChange={(val: string) => {
                   this.setState({ amount: Number(val) });
                 }}
-                data={[
-                  { value: "0.01", label: "0.01" },
-                  { value: "0.02", label: "0.02" },
-                  { value: "0.03", label: "0.03" },
-                  { value: "0.04", label: "0.04" },
-                ]}
+                data={priceData}
               />
             </div>
 
@@ -330,17 +325,6 @@ export class game_form extends Component<IProps, IState> {
                 Bet
               </button>
             </div>
-            {/* <div className="flex mt-4">
-              <button
-                onClick={this.leaveGameSession}
-                className={`py-2 flex-1 cursor-pointer ${board.isActive
-                  ? "bg-primary text-primaryBlack cursor-auto"
-                  : "bg-black/40 text-primary cursor-not-allowed"
-                  }`}
-              >
-                Leave Game
-              </button>
-            </div> */}
           </div>
         </div>
       </>
