@@ -1,5 +1,6 @@
 import React, { Component } from "react";
-import { connect, Subscription } from "react-redux";
+import { connect } from "react-redux";
+import ReactTooltip from 'react-tooltip';
 import {
   gameEnded,
   resetTime,
@@ -246,17 +247,24 @@ export class game_form extends Component<IProps, IState> {
         <GameWinner handleResetInterval={this.resetInerval} />
         <div className="formBody bg-[#2b1d11] min-w-[300px] shadow-2xl ...">
           <div id="form_container" className="form_container">
-            <div className="flex justify-between my-2">
-              <span>Score: {Number(this.props.score)}</span>
+            <div className="flex justify-between my-2 space-x-2">
+              {/* <ReactTooltip /> */}
+              <button data-tip="Score" data-place="top" type="button" className="bg-darkBG shadow-xl rounded-sm text-white font-bold w-full py-2">
+                {Number(this.props.score)}
+              </button>
 
-              <span>Bet Amount: {Number(this.props.betAmount)}</span>
-
-              <span>Level: {Number(this.props.level)}</span>
+              <button data-tip="Bet Amount" className="bg-darkBG shadow-xl rounded-sm text-white font-bold w-full py-2">
+                {Number(this.props.betAmount)}
+              </button>
             </div>
-            <div className="flex mb-2">
-              <span>Remaining: {this.getTime(this.props.time)}</span>
+            <div className="flex justify-between my-2 space-x-2">
+              <button data-tip="Diffuculty Level" className="bg-darkBG shadow-xl rounded-sm text-white font-bold w-full py-2">
+                {Number(this.props.level)}
+              </button>
+              <button data-tip="Time Remaining" className="bg-darkBG shadow-xl rounded-sm text-white font-bold w-full py-2">
+                {this.getTime(this.props.time)}
+              </button>
             </div>
-
             <span className="label mt-4">Bet Amount</span>
             <div className="">
               <Select
@@ -323,11 +331,10 @@ export class game_form extends Component<IProps, IState> {
             <div className="flex mt-4">
               <button
                 onClick={this.leaveGameSession}
-                className={`py-2 flex-1 cursor-pointer ${
-                  board.isActive
-                    ? "bg-primary text-primaryBlack cursor-auto"
-                    : "bg-black/40 text-primary cursor-not-allowed"
-                }`}
+                className={`py-2 flex-1 cursor-pointer ${board.isActive
+                  ? "bg-primary text-primaryBlack cursor-auto"
+                  : "bg-black/40 text-primary cursor-not-allowed"
+                  }`}
               >
                 Leave Game
               </button>

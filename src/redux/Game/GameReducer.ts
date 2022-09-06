@@ -25,7 +25,7 @@ const initialState = {
   level: 5,
   winnerArr: [],
   game: false,
-  time: 30, // 3min - 180sec
+  time: 180, // 3min - 180sec
 };
 
 export const gameReducer = (state = initialState, action: Action) => {
