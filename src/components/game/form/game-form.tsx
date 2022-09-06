@@ -247,21 +247,26 @@ export class game_form extends Component<IProps, IState> {
         <GameWinner handleResetInterval={this.resetInerval} />
         <div className="formBody bg-[#2b1d11] min-w-[300px] shadow-2xl ...">
           <div id="form_container" className="form_container">
-            <div className="flex justify-between my-2 space-x-2">
+            <div className="flex justify-between my-4 space-x-2">
               {/* <ReactTooltip /> */}
-              <button data-tip="Score" data-place="top" type="button" className="bg-darkBG shadow-xl rounded-sm text-white font-bold w-full py-2">
+
+              <button data-tip="Score" data-place="top" type="button" className="relative bg-darkBG shadow-xl rounded-sm  font-bold w-full py-2">
+                <div className="absolute text-sm -top-4 drop-shadow-sm ">Score</div>
                 {Number(this.props.score)}
               </button>
 
-              <button data-tip="Bet Amount" className="bg-darkBG shadow-xl rounded-sm text-white font-bold w-full py-2">
+              <button data-tip="Bet Amount" className="relative bg-darkBG shadow-xl rounded-sm  font-bold w-full py-2">
+                <div className="absolute text-sm -top-4 drop-shadow-sm ">Bet Amount</div>
                 {Number(this.props.betAmount)}
               </button>
             </div>
             <div className="flex justify-between my-2 space-x-2">
-              <button data-tip="Diffuculty Level" className="bg-darkBG shadow-xl rounded-sm text-white font-bold w-full py-2">
+              <button data-tip="Diffuculty Level" className="relative bg-darkBG shadow-xl rounded-sm  font-bold w-full py-2">
+                <div className="absolute text-sm -top-4 drop-shadow-sm ">Diffuculty</div>
                 {Number(this.props.level)}
               </button>
-              <button data-tip="Time Remaining" className="bg-darkBG shadow-xl rounded-sm text-white font-bold w-full py-2">
+              <button data-tip="Time Remaining" className="relative bg-darkBG shadow-xl rounded-sm  font-bold w-full py-2">
+                <div className="absolute text-sm -top-4 drop-shadow-sm ">Time</div>
                 {this.getTime(this.props.time)}
               </button>
             </div>
