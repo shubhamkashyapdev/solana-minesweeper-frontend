@@ -262,8 +262,8 @@ export class game_form extends Component<IProps, IState> {
                 <div className="absolute text-sm -top-4 drop-shadow-sm ">Diffuculty</div>
                 {Number(this.props.level)}
               </button>
-              <button data-tip="Time Remaining" className="relative bg-darkBG shadow-xl rounded-sm  font-bold w-full py-2">
-                <div className="absolute text-sm -top-4 drop-shadow-sm ">Time</div>
+              <button data-tip="Time Left" className="relative bg-darkBG shadow-xl rounded-sm  font-bold w-full py-2">
+                <div className="absolute text-sm -top-4 drop-shadow-sm ">Time Left</div>
                 {this.getTime(this.props.time)}
               </button>
             </div>
@@ -278,10 +278,10 @@ export class game_form extends Component<IProps, IState> {
                   this.setState({ amount: Number(val) });
                 }}
                 data={[
-                  { value: "0.001", label: "0.001" },
-                  { value: "0.002", label: "0.002" },
-                  { value: "0.003", label: "0.003" },
-                  { value: "0.004", label: "0.004" },
+                  { value: "0.01", label: "0.01" },
+                  { value: "0.02", label: "0.02" },
+                  { value: "0.03", label: "0.03" },
+                  { value: "0.04", label: "0.04" },
                 ]}
               />
             </div>
