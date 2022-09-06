@@ -241,8 +241,8 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
           </div>
           <div className="w-16 h-16">
             <img
-              className="w-full h-full object-cover overflow-hidden"
-              src="http://surl.li/csirq"
+              className=" h-[150%] object-cover overflow-hidden"
+              src="/assets/vs_image.png"
             />
           </div>
 
