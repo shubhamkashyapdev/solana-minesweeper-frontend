@@ -50,39 +50,50 @@ const Minesweeper: React.FC<MinesweeperProps> = ({ description }) => {
         <div className="w-full mt-5 px-10 flex">
           <div>
             <div className="pt-5 w-[200px]">
-              <img src="/assets/images/Rectangle 23.png" className="w-full h-full" />
+              <img
+                src="/assets/images/Rectangle 23.png"
+                className="w-full h-full"
+              />
             </div>
           </div>
           <div className="px-10">
-            <p className="pt-5 lg: ml-2 leading-8">
-              {
-                descirptionChunk1
-              } {
-                !showfull && <button onClick={() => setshowfull(true)} className="text-primary text-[17px]">{" "} Read More...</button>
-              }
+            <p className="pt-5 lg: ml-2 leading-8 text-left">
+              {descirptionChunk1}{" "}
+              {!showfull && (
+                <button
+                  onClick={() => setshowfull(true)}
+                  className="text-primary text-[17px]"
+                >
+                  {" "}
+                  Read More...
+                </button>
+              )}
             </p>
-            {
-              showfull && (
-                <p className="pt-5 leading-8">
-                  {
-                    descriptionChunk2
-                  } <button onClick={() => setshowfull(false)} className="text-primary text-[18px]">Read Less...</button>
-                </p>
-              )
-            }
-
           </div>
         </div>
-        <div className="w-full mt-10 pl-10">
+
+        <div>
+          {showfull && (
+            <p className="pt-5 leading-8 text-left px-10">
+              {descriptionChunk2}{" "}
+              <button
+                onClick={() => setshowfull(false)}
+                className="text-primary text-[18px]"
+              >
+                Read Less...
+              </button>
+            </p>
+          )}
         </div>
+
+        <div className="w-full mt-10 pl-10"></div>
       </div>
     </div>
   );
 };
 
 Minesweeper.defaultProps = {
-
-  description:`Duis aute irure dolor in reprehenderit in voluptate velit esse
+  description: `Duis aute irure dolor in reprehenderit in voluptate velit esse
       cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat eeesse
     non proident, sunt in culpa qui officia deserunt mollit
     anim id est laborum.""Lorem ipsum dolor sit amet, consecteturp
@@ -123,7 +134,6 @@ Minesweeper.defaultProps = {
     consequat. Duis aute irure dolor in reprehenderit in voluptate
     velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
     occaecat cupidatat non proident, sunt in culpa qui officia
-  deserunt mollit anim id est laborum.`
-  
-}
+  deserunt mollit anim id est laborum.`,
+};
 export default Minesweeper;
