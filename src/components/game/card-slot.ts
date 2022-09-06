@@ -52,23 +52,22 @@ export class CardSlot extends Component implements ICardSlot {
             message: 'Waiting for opponent!',
             autoClose: 3000,
             styles: (theme) => ({
-                root: {
-                    backgroundColor: theme.colors.dark[8],
-                    '&::before': { backgroundColor: theme.colors.gray[4] },
-                },
-                title: { color: theme.colors.gray[4] },
-                description: { color: theme.colors.gray[5] },
-                closeButton: {
-                  color: theme.colors.dark,
-                  "&:hover": { backgroundColor: "#F7C901", color: "#000000" },
-                },
+              root: {
+                backgroundColor: theme.colors.dark[8],
+                '&::before': { backgroundColor: theme.colors.gray[4] },
+              },
+              title: { color: theme.colors.gray[4] },
+              description: { color: theme.colors.gray[5] },
+              closeButton: {
+                color: theme.colors.dark,
+                "&:hover": { backgroundColor: "#F7C901", color: "#000000" },
+              },
             })
-        })
+          })
           console.log('game ended')
           props.socket.emit('updateScore', props.opponent.roomId, props.opponent.transactionId, props.score)
-   
         }
-   
+
         session.KillSession()
         return
       }

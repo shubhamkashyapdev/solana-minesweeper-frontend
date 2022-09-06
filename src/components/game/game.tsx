@@ -118,10 +118,11 @@ export class Game extends React.Component {
 }
 
 class Session {
-  gForm = new game_form(0);
+  //@ts-ignore
+  gForm = new game_form();
   cashoutBtn: any;
 
-  constructor() {}
+  constructor() { }
 
   StartSession(gForm: game_form): void {
     MainBalance.Charge(BetBalance.GetValue());

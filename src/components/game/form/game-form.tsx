@@ -201,8 +201,6 @@ export class game_form extends Component<IProps, IState> {
   }
 
   startGameSession() {
-    //@todo - show popup to notify the user that game has ended
-    //@todo - reset the state after the session ends
     game_form.interval = setInterval(() => {
       if (this.props.time <= 0) {
         console.log("update the socre");
@@ -333,7 +331,7 @@ export class game_form extends Component<IProps, IState> {
                 Bet
               </button>
             </div>
-            <div className="flex mt-4">
+            {/* <div className="flex mt-4">
               <button
                 onClick={this.leaveGameSession}
                 className={`py-2 flex-1 cursor-pointer ${board.isActive
@@ -343,7 +341,7 @@ export class game_form extends Component<IProps, IState> {
               >
                 Leave Game
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
       </>
