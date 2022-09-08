@@ -6,6 +6,7 @@
         "@components/*": ["src/components/*"],
         "@components/layout/*": ["src/components/layout/*"],
         "@components/typography/*": ["src/components/typography/*"],
+        "@utils/*": ["src/utils"]
       }
     }
   }

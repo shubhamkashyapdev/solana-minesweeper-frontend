@@ -1,11 +1,18 @@
 
-type priceItem = {
+export type priceItem = {
     value: string;
     label: string;
 }
 
-type Opponent = {
-
+export type Opponent = {
+    amount: number;
+    level: number;
+    socketId: string;
+    userId: string;
+    _id: string;
+    _v?: number;
+    roomId: string;
+    transactionId: string;
 }
 
 export const priceData: priceItem[] = [

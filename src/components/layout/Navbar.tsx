@@ -17,7 +17,7 @@ const Navbar = () => {
   useEffect(() => {
     let connection: any;
     if (walletAddress && !socket) {
-      connection = io("https://solana-minesweeper-game-api.herokuapp.com", {
+      connection = io("http://192.168.18.9:5001", {
         auth: { walletId: walletAddress },
       });
       console.log(connection);

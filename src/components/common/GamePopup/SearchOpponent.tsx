@@ -25,16 +25,7 @@ interface SocketData {
   _v?: number;
 }
 
-interface Opponent {
-  amount: number;
-  level: number;
-  socketId: string;
-  userId: string;
-  _id: string;
-  _v?: number;
-  roomId: string;
-  transactionId: string;
-}
+import { Opponent } from '../../../utils/data'
 
 interface ISearchOpponent {
   hidePopup: () => void;
@@ -327,7 +318,7 @@ const SearchOpponent: React.FC<ISearchOpponent> = ({
       );
     }
 
-    return () => {};
+    return () => { };
   }, [opponent]);
 
   useEffect(() => {
