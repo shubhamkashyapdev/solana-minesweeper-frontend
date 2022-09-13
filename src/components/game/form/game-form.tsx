@@ -102,6 +102,7 @@ export class game_form extends Component<IProps, IState> {
           },
         }),
       });
+      return;
     }
 
     if (board.isActive) {
