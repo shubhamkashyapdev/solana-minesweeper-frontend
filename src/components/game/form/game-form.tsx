@@ -18,6 +18,7 @@ import { SearchOpponent } from "../../common";
 import GameWinner from "../../common/GameWinner/GameWinner";
 import { showNotification } from "@mantine/notifications";
 import { IconX } from "@tabler/icons";
+import { priceData } from "../../../utils/data";
 
 export interface IState {
   amount: number;
@@ -246,7 +247,6 @@ export class game_form extends Component<IProps, IState> {
           <div id="form_container" className="form_container">
             <div className="flex justify-between my-4 space-x-2">
               {/* <ReactTooltip /> */}
-
               <button data-tip="Score" data-place="top" type="button" className="relative bg-darkBG shadow-xl rounded-sm  font-bold w-full py-2">
                 <div className="absolute text-sm -top-4 drop-shadow-sm ">Score</div>
                 {Number(this.props.score)}
@@ -262,8 +262,8 @@ export class game_form extends Component<IProps, IState> {
                 <div className="absolute text-sm -top-4 drop-shadow-sm ">Diffuculty</div>
                 {Number(this.props.level)}
               </button>
-              <button data-tip="Time Remaining" className="relative bg-darkBG shadow-xl rounded-sm  font-bold w-full py-2">
-                <div className="absolute text-sm -top-4 drop-shadow-sm ">Time</div>
+              <button data-tip="Time Left" className="relative bg-darkBG shadow-xl rounded-sm  font-bold w-full py-2">
+                <div className="absolute text-sm -top-4 drop-shadow-sm ">Time Left</div>
                 {this.getTime(this.props.time)}
               </button>
             </div>
@@ -277,12 +277,7 @@ export class game_form extends Component<IProps, IState> {
                 onChange={(val: string) => {
                   this.setState({ amount: Number(val) });
                 }}
-                data={[
-                  { value: "0.001", label: "0.001" },
-                  { value: "0.002", label: "0.002" },
-                  { value: "0.003", label: "0.003" },
-                  { value: "0.004", label: "0.004" },
-                ]}
+                data={priceData}
               />
             </div>
 
@@ -330,17 +325,6 @@ export class game_form extends Component<IProps, IState> {
                 Bet
               </button>
             </div>
-            {/* <div className="flex mt-4">
-              <button
-                onClick={this.leaveGameSession}
-                className={`py-2 flex-1 cursor-pointer ${board.isActive
-                  ? "bg-primary text-primaryBlack cursor-auto"
-                  : "bg-black/40 text-primary cursor-not-allowed"
-                  }`}
-              >
-                Leave Game
-              </button>
-            </div> */}
           </div>
         </div>
       </>

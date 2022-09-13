@@ -25,16 +25,7 @@ interface SocketData {
   _v?: number;
 }
 
-interface Opponent {
-  amount: number;
-  level: number;
-  socketId: string;
-  userId: string;
-  _id: string;
-  _v?: number;
-  roomId: string;
-  transactionId: string;
-}
+import { Opponent } from '../../../utils/data'
 
 interface ISearchOpponent {
   hidePopup: () => void;
@@ -241,8 +232,8 @@ const Card: React.FC<ICard> = ({ amount, startGameSession, opponent }) => {
           </div>
           <div className="w-16 h-16">
             <img
-              className="w-full h-full object-cover overflow-hidden"
-              src="http://surl.li/csirq"
+              className=" h-[150%] object-cover overflow-hidden"
+              src="/assets/vs_image.png"
             />
           </div>
 
@@ -327,7 +318,7 @@ const SearchOpponent: React.FC<ISearchOpponent> = ({
       );
     }
 
-    return () => {};
+    return () => { };
   }, [opponent]);
 
   useEffect(() => {
